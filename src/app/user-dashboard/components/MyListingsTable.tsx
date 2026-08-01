@@ -1,11 +1,20 @@
 'use client';
-import React, { useState } from 'react';
-import { ArrowUpDown, Eye, Edit3, Trash2, Plus, MoreHorizontal, ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  ArrowUpDown,
+  Eye,
+  Edit3,
+  Trash2,
+  Plus,
+  MoreHorizontal,
+  ChevronUp,
+  ChevronDown,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import AppImage from '@/components/ui/AppImage';
 import Badge from '@/components/ui/Badge';
 import Modal from '@/components/ui/Modal';
 import { MY_LISTINGS, MyListing } from './dashboardData';
+import { useRouter } from 'next/navigation';
 
 type SortKey = 'title' | 'estimatedValue' | 'views' | 'swapRequests' | 'postedDate';
 type SortDir = 'asc' | 'desc';
@@ -27,11 +36,47 @@ const STATUS_VARIANT_MAP: Record<string, string> = {
 };
 
 export default function MyListingsTable() {
+  const router = useRouter();
   const [listings, setListings] = useState<MyListing[]>(MY_LISTINGS);
   const [sortKey, setSortKey] = useState<SortKey>('postedDate');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [deleteTarget, setDeleteTarget] = useState<MyListing | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Load user listings from localStorage
+  useEffect(() => {
+    try {
+      const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+      console.log('MyListingsTable - Loaded from localStorage:', savedListings.length);
+      
+      if (savedListings.length > 0) {
+        // Convert localStorage listings to MyListing format
+        const convertedListings: MyListing[] = savedListings.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          brand: item.brand,
+          category: item.category,
+          size: item.size,
+          status: 'active',
+          estimatedValue: item.estimatedValue,
+          views: 0,
+          swapRequests: 0,
+          postedDate: 'Just now',
+          imageUrl: item.imageUrl || '',
+          imageAlt: item.imageAlt,
+          color: item.color || '#4A90A4', // Add color field
+        }));
+        console.log('MyListingsTable - Converted listings:', convertedListings.length);
+        setListings([...MY_LISTINGS, ...convertedListings]);
+      } else {
+        console.log('MyListingsTable - No user listings found, using mock data only');
+        setListings(MY_LISTINGS);
+      }
+    } catch (error) {
+      console.error('MyListingsTable - Error loading listings:', error);
+      setListings(MY_LISTINGS);
+    }
+  }, []);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -53,9 +98,7 @@ export default function MyListingsTable() {
   });
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const toggleSelectAll = () => {
@@ -68,13 +111,23 @@ export default function MyListingsTable() {
 
   const handleDelete = () => {
     if (!deleteTarget) return;
-    // BACKEND INTEGRATION: DELETE /api/listings/:id
+    // Remove from localStorage if it's a user-created listing
+    const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+    const updatedListings = savedListings.filter((l: any) => l.id !== deleteTarget.id);
+    localStorage.setItem('userListings', JSON.stringify(updatedListings));
+    
+    // Remove from state
     setListings((prev) => prev.filter((l) => l.id !== deleteTarget.id));
     toast.success(`"${deleteTarget.title}" removed from your listings`);
     setDeleteTarget(null);
   };
 
   const handleBulkDelete = () => {
+    // Remove from localStorage
+    const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+    const updatedListings = savedListings.filter((l: any) => !selectedIds.includes(l.id));
+    localStorage.setItem('userListings', JSON.stringify(updatedListings));
+    
     setListings((prev) => prev.filter((l) => !selectedIds.includes(l.id)));
     toast.success(`${selectedIds.length} listing${selectedIds.length > 1 ? 's' : ''} removed`);
     setSelectedIds([]);
@@ -82,9 +135,11 @@ export default function MyListingsTable() {
 
   const SortIcon = ({ col }: { col: SortKey }) => {
     if (sortKey !== col) return <ArrowUpDown size={12} className="text-muted-foreground/50" />;
-    return sortDir === 'asc'
-      ? <ChevronUp size={12} className="text-primary" />
-      : <ChevronDown size={12} className="text-primary" />;
+    return sortDir === 'asc' ? (
+      <ChevronUp size={12} className="text-primary" />
+    ) : (
+      <ChevronDown size={12} className="text-primary" />
+    );
   };
 
   const SortHeader = ({ col, label }: { col: SortKey; label: string }) => (
@@ -107,7 +162,10 @@ export default function MyListingsTable() {
             {listings.length}
           </span>
         </div>
-        <button className="flex items-center gap-2 btn-primary px-4 py-2 rounded-lg text-sm font-600">
+        <button 
+          onClick={() => router.push('/add-listing')}
+          className="flex items-center gap-2 btn-primary px-4 py-2 rounded-lg text-sm font-600"
+        >
           <Plus size={15} />
           Add Listing
         </button>
@@ -194,18 +252,19 @@ export default function MyListingsTable() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted shrink-0">
-                        <AppImage
-                          src={listing.imageUrl}
-                          alt={listing.imageAlt}
-                          width={40}
-                          height={40}
-                          className="object-cover w-full h-full"
-                        />
+                      <div 
+                        className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center"
+                        style={{ backgroundColor: (listing as any).color || '#4A90A4' }}
+                      >
+                        <span className="text-white text-xs font-600">{listing.brand.substring(0, 2).toUpperCase()}</span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-500 text-foreground truncate max-w-[180px]">{listing.title}</p>
-                        <p className="text-xs text-muted-foreground">{listing.brand} · Size {listing.size}</p>
+                        <p className="text-sm font-500 text-foreground truncate max-w-[180px]">
+                          {listing.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {listing.brand} · Size {listing.size}
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -218,13 +277,19 @@ export default function MyListingsTable() {
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-600 text-foreground tabular-nums">${listing.estimatedValue}</span>
+                    <span className="text-sm font-600 text-foreground tabular-nums">
+                      ${listing.estimatedValue}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="text-sm text-muted-foreground tabular-nums">{listing.views}</span>
+                    <span className="text-sm text-muted-foreground tabular-nums">
+                      {listing.views}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-500 tabular-nums ${listing.swapRequests > 0 ? 'text-accent' : 'text-muted-foreground'}`}>
+                    <span
+                      className={`text-sm font-500 tabular-nums ${listing.swapRequests > 0 ? 'text-accent' : 'text-muted-foreground'}`}
+                    >
                       {listing.swapRequests}
                     </span>
                   </td>

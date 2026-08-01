@@ -28,7 +28,11 @@ function FilterSection({ title, children }: { title: string; children: React.Rea
         className="flex items-center justify-between w-full mb-3"
       >
         <span className="text-sm font-600 text-foreground">{title}</span>
-        {open ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
+        {open ? (
+          <ChevronUp size={16} className="text-muted-foreground" />
+        ) : (
+          <ChevronDown size={16} className="text-muted-foreground" />
+        )}
       </button>
       {open && children}
     </div>
@@ -38,9 +42,7 @@ function FilterSection({ title, children }: { title: string; children: React.Rea
 export default function FilterSidebar({ filters, onFiltersChange, onClear }: FilterSidebarProps) {
   const toggleMulti = (key: 'categories' | 'sizes' | 'conditions', val: string) => {
     const current = filters[key];
-    const next = current.includes(val)
-      ? current.filter((v) => v !== val)
-      : [...current, val];
+    const next = current.includes(val) ? current.filter((v) => v !== val) : [...current, val];
     onFiltersChange({ ...filters, [key]: next });
   };
 
@@ -72,14 +74,19 @@ export default function FilterSidebar({ filters, onFiltersChange, onClear }: Fil
         <FilterSection title="Category">
           <div className="space-y-1.5">
             {CATEGORIES.filter((c) => c !== 'All').map((cat) => (
-              <label key={`filter-cat-${cat}`} className="flex items-center gap-2.5 cursor-pointer group">
+              <label
+                key={`filter-cat-${cat}`}
+                className="flex items-center gap-2.5 cursor-pointer group"
+              >
                 <input
                   type="checkbox"
                   checked={filters.categories.includes(cat)}
                   onChange={() => toggleMulti('categories', cat)}
                   className="w-3.5 h-3.5 accent-primary rounded"
                 />
-                <span className="text-sm text-foreground group-hover:text-primary transition-colors">{cat}</span>
+                <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                  {cat}
+                </span>
               </label>
             ))}
           </div>
@@ -108,14 +115,19 @@ export default function FilterSidebar({ filters, onFiltersChange, onClear }: Fil
         <FilterSection title="Condition">
           <div className="space-y-1.5">
             {CONDITIONS.map((cond) => (
-              <label key={`filter-cond-${cond}`} className="flex items-center gap-2.5 cursor-pointer group">
+              <label
+                key={`filter-cond-${cond}`}
+                className="flex items-center gap-2.5 cursor-pointer group"
+              >
                 <input
                   type="checkbox"
                   checked={filters.conditions.includes(cond)}
                   onChange={() => toggleMulti('conditions', cond)}
                   className="w-3.5 h-3.5 accent-primary rounded"
                 />
-                <span className="text-sm text-foreground group-hover:text-primary transition-colors">{cond}</span>
+                <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                  {cond}
+                </span>
               </label>
             ))}
           </div>
@@ -125,7 +137,10 @@ export default function FilterSidebar({ filters, onFiltersChange, onClear }: Fil
         <FilterSection title="Distance">
           <div className="space-y-1.5">
             {DISTANCES.map((d) => (
-              <label key={`filter-dist-${d}`} className="flex items-center gap-2.5 cursor-pointer group">
+              <label
+                key={`filter-dist-${d}`}
+                className="flex items-center gap-2.5 cursor-pointer group"
+              >
                 <input
                   type="radio"
                   name="distance"
@@ -133,7 +148,9 @@ export default function FilterSidebar({ filters, onFiltersChange, onClear }: Fil
                   onChange={() => onFiltersChange({ ...filters, distance: d })}
                   className="w-3.5 h-3.5 accent-primary"
                 />
-                <span className="text-sm text-foreground group-hover:text-primary transition-colors">{d}</span>
+                <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                  {d}
+                </span>
               </label>
             ))}
           </div>

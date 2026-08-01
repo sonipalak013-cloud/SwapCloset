@@ -1,15 +1,22 @@
 'use client';
-import React, { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, Grid3X3, List, X, ArrowUpDown, ArrowLeftRight } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import {
+  Search,
+  SlidersHorizontal,
+  Grid3X3,
+  List,
+  X,
+  ArrowUpDown,
+  ArrowLeftRight,
+  Shirt,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { LISTINGS, SORT_OPTIONS, Listing } from './listingsData';
 import ListingCard from './ListingCard';
 import FilterSidebar from './FilterSidebar';
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
-import { Shirt } from 'lucide-react';
-import AppImage from '@/components/ui/AppImage';
-
 
 interface FilterState {
   categories: string[];
@@ -32,37 +39,91 @@ const DEFAULT_FILTERS: FilterState = {
 };
 
 export default function ListingsPageClient() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('Newest first');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [swapModalListing, setSwapModalListing] = useState<Listing | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [userListings, setUserListings] = useState<Listing[]>([]);
+
+  // Load user listings from localStorage
+  useEffect(() => {
+    try {
+      const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+      console.log('ListingsPage - Loaded user listings:', savedListings.length);
+      setUserListings(savedListings);
+    } catch (error) {
+      console.error('ListingsPage - Error loading listings:', error);
+      setUserListings([]);
+    }
+  }, []);
+
+  // Read search query from URL
+  useEffect(() => {
+    const searchQuery = searchParams.get('search');
+    if (searchQuery) {
+      setSearch(searchQuery);
+    }
+  }, [searchParams]);
 
   // Active filter chips
   const activeChips: { key: string; label: string; onRemove: () => void }[] = [];
   filters.categories.forEach((c) =>
-    activeChips.push({ key: `chip-cat-${c}`, label: c, onRemove: () => setFilters((f) => ({ ...f, categories: f.categories.filter((x) => x !== c) })) })
+    activeChips.push({
+      key: `chip-cat-${c}`,
+      label: c,
+      onRemove: () =>
+        setFilters((f) => ({ ...f, categories: f.categories.filter((x) => x !== c) })),
+    })
   );
   filters.sizes.forEach((s) =>
-    activeChips.push({ key: `chip-size-${s}`, label: `Size ${s}`, onRemove: () => setFilters((f) => ({ ...f, sizes: f.sizes.filter((x) => x !== s) })) })
+    activeChips.push({
+      key: `chip-size-${s}`,
+      label: `Size ${s}`,
+      onRemove: () => setFilters((f) => ({ ...f, sizes: f.sizes.filter((x) => x !== s) })),
+    })
   );
   filters.conditions.forEach((c) =>
-    activeChips.push({ key: `chip-cond-${c}`, label: c, onRemove: () => setFilters((f) => ({ ...f, conditions: f.conditions.filter((x) => x !== c) })) })
+    activeChips.push({
+      key: `chip-cond-${c}`,
+      label: c,
+      onRemove: () =>
+        setFilters((f) => ({ ...f, conditions: f.conditions.filter((x) => x !== c) })),
+    })
   );
   if (filters.distance !== 'Any distance')
-    activeChips.push({ key: `chip-dist-${filters.distance}`, label: `Within ${filters.distance}`, onRemove: () => setFilters((f) => ({ ...f, distance: 'Any distance' })) });
+    activeChips.push({
+      key: `chip-dist-${filters.distance}`,
+      label: `Within ${filters.distance}`,
+      onRemove: () => setFilters((f) => ({ ...f, distance: 'Any distance' })),
+    });
   if (filters.gender !== 'All')
-    activeChips.push({ key: `chip-gender-${filters.gender}`, label: filters.gender, onRemove: () => setFilters((f) => ({ ...f, gender: 'All' })) });
+    activeChips.push({
+      key: `chip-gender-${filters.gender}`,
+      label: filters.gender,
+      onRemove: () => setFilters((f) => ({ ...f, gender: 'All' })),
+    });
 
   // Filter + sort listings
   const filteredListings = useMemo(() => {
-    let result = LISTINGS.filter((l) => {
-      if (search && !l.title.toLowerCase().includes(search.toLowerCase()) && !l.brand.toLowerCase().includes(search.toLowerCase())) return false;
+    const allListings = [...LISTINGS, ...userListings];
+    console.log('Total listings before filter:', allListings.length, 'User listings:', userListings.length, 'Search term:', search);
+    
+    let result = allListings.filter((l) => {
+      if (
+        search &&
+        !l.title.toLowerCase().includes(search.toLowerCase()) &&
+        !l.brand.toLowerCase().includes(search.toLowerCase()) &&
+        !l.category.toLowerCase().includes(search.toLowerCase())
+      )
+        return false;
       if (filters.categories.length && !filters.categories.includes(l.category)) return false;
       if (filters.sizes.length && !filters.sizes.includes(l.size)) return false;
       if (filters.conditions.length && !filters.conditions.includes(l.conditionLabel)) return false;
-      if (filters.gender !== 'All' && l.gender !== filters.gender && l.gender !== 'Unisex') return false;
+      if (filters.gender !== 'All' && l.gender !== filters.gender && l.gender !== 'Unisex')
+        return false;
       if (l.estimatedValue < filters.minValue || l.estimatedValue > filters.maxValue) return false;
       if (filters.distance !== 'Any distance') {
         const miles = parseInt(filters.distance);
@@ -71,15 +132,24 @@ export default function ListingsPageClient() {
       return true;
     });
 
+    console.log('Filtered listings count:', result.length);
+
     switch (sort) {
-      case 'Value: High to Low': result = [...result].sort((a, b) => b.estimatedValue - a.estimatedValue); break;
-      case 'Value: Low to High': result = [...result].sort((a, b) => a.estimatedValue - b.estimatedValue); break;
-      case 'Closest first': result = [...result].sort((a, b) => a.distanceMiles - b.distanceMiles); break;
-      default: result = [...result].sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
+      case 'Value: High to Low':
+        result = [...result].sort((a, b) => b.estimatedValue - a.estimatedValue);
+        break;
+      case 'Value: Low to High':
+        result = [...result].sort((a, b) => a.estimatedValue - b.estimatedValue);
+        break;
+      case 'Closest first':
+        result = [...result].sort((a, b) => a.distanceMiles - b.distanceMiles);
+        break;
+      default:
+        result = [...result].sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
     }
 
     return result;
-  }, [search, filters, sort]);
+  }, [search, filters, sort, userListings]);
 
   const handleRequestSwap = (listing: Listing) => {
     setSwapModalListing(listing);
@@ -97,14 +167,18 @@ export default function ListingsPageClient() {
       <div className="mb-6">
         <h1 className="text-2xl font-700 text-foreground mb-1">Browse Listings</h1>
         <p className="text-sm text-muted-foreground">
-          {filteredListings.length} item{filteredListings.length !== 1 ? 's' : ''} available near Portland, OR
+          {filteredListings.length} item{filteredListings.length !== 1 ? 's' : ''} available near
+          Portland, OR
         </p>
       </div>
 
       {/* Search + controls bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             type="text"
             placeholder="Search by item name or brand..."
@@ -112,6 +186,15 @@ export default function ListingsPageClient() {
             onChange={(e) => setSearch(e.target.value)}
             className="input-field pl-9 text-sm"
           />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Clear search"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -123,10 +206,15 @@ export default function ListingsPageClient() {
               className="appearance-none bg-card border border-border rounded-lg pl-3 pr-8 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 cursor-pointer"
             >
               {SORT_OPTIONS.map((opt) => (
-                <option key={`sort-${opt}`} value={opt}>{opt}</option>
+                <option key={`sort-${opt}`} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
-            <ArrowUpDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <ArrowUpDown
+              size={14}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+            />
           </div>
 
           {/* View toggle */}
@@ -203,20 +291,21 @@ export default function ListingsPageClient() {
               title="No listings match your filters"
               description="Try adjusting your size, category, or distance filters to discover more swap options near you."
               actionLabel="Clear All Filters"
-              onAction={() => { setFilters(DEFAULT_FILTERS); setSearch(''); }}
+              onAction={() => {
+                setFilters(DEFAULT_FILTERS);
+                setSearch('');
+              }}
             />
           ) : (
             <div
               className={
-                viewMode === 'grid' ?'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4' :'flex flex-col gap-3'
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4'
+                  : 'flex flex-col gap-3'
               }
             >
               {filteredListings.map((listing) => (
-                <ListingCard
-                  key={listing.id}
-                  listing={listing}
-                  onRequestSwap={handleRequestSwap}
-                />
+                <ListingCard key={listing.id} listing={listing} onRequestSwap={handleRequestSwap} />
               ))}
             </div>
           )}
@@ -225,8 +314,8 @@ export default function ListingsPageClient() {
           {filteredListings.length > 0 && (
             <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
               <p className="text-sm text-muted-foreground">
-                Showing <span className="font-600 text-foreground">{filteredListings.length}</span> of{' '}
-                <span className="font-600 text-foreground">{LISTINGS.length}</span> listings
+                Showing <span className="font-600 text-foreground">{filteredListings.length}</span>{' '}
+                of <span className="font-600 text-foreground">{LISTINGS.length}</span> listings
               </p>
               <div className="flex items-center gap-1">
                 {[1, 2, 3].map((page) => (
@@ -242,7 +331,9 @@ export default function ListingsPageClient() {
                   </button>
                 ))}
                 <span className="text-muted-foreground px-1">...</span>
-                <button className="w-8 h-8 rounded-lg text-sm font-500 text-muted-foreground hover:bg-muted">8</button>
+                <button className="w-8 h-8 rounded-lg text-sm font-500 text-muted-foreground hover:bg-muted">
+                  8
+                </button>
               </div>
             </div>
           )}
@@ -252,7 +343,10 @@ export default function ListingsPageClient() {
       {/* Mobile filter drawer */}
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-40 lg:hidden fade-in">
-          <div className="absolute inset-0 bg-foreground/30" onClick={() => setMobileFiltersOpen(false)} />
+          <div
+            className="absolute inset-0 bg-foreground/30"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
           <div className="absolute right-0 top-0 h-full w-80 bg-background overflow-y-auto scrollbar-thin shadow-modal slide-up p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-700">Filters</h3>
@@ -280,19 +374,17 @@ export default function ListingsPageClient() {
           <div>
             {/* Item preview */}
             <div className="flex gap-4 p-4 bg-muted rounded-xl mb-5">
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-card shrink-0">
-                <AppImage
-                  src={swapModalListing.imageUrl}
-                  alt={swapModalListing.imageAlt}
-                  width={64}
-                  height={64}
-                  className="object-cover w-full h-full"
-                />
+              <div className="w-16 h-16 rounded-xl bg-primary/20 shrink-0 flex items-center justify-center">
+                <span className="text-primary text-xs font-600">{swapModalListing.brand}</span>
               </div>
               <div>
                 <p className="text-sm font-600 text-foreground">{swapModalListing.title}</p>
-                <p className="text-xs text-muted-foreground">{swapModalListing.brand} · Size {swapModalListing.size}</p>
-                <p className="text-xs text-primary font-600 mt-1">Est. value: ₹{swapModalListing.estimatedValue}</p>
+                <p className="text-xs text-muted-foreground">
+                  {swapModalListing.brand} · Size {swapModalListing.size}
+                </p>
+                <p className="text-xs text-primary font-600 mt-1">
+                  Est. value: ₹{swapModalListing.estimatedValue}
+                </p>
               </div>
             </div>
 
@@ -301,7 +393,9 @@ export default function ListingsPageClient() {
               <div className="flex items-center justify-between">
                 <div className="text-center">
                   <p className="text-[11px] text-muted-foreground mb-1">Their item value</p>
-                  <p className="text-lg font-700 text-foreground tabular-nums">₹{swapModalListing.estimatedValue}</p>
+                  <p className="text-lg font-700 text-foreground tabular-nums">
+                    ₹{swapModalListing.estimatedValue}
+                  </p>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <ArrowLeftRight size={18} className="text-primary" />
@@ -320,23 +414,23 @@ export default function ListingsPageClient() {
                 Message to {swapModalListing.ownerName.split(' ')[0]}
               </label>
               <p className="text-xs text-muted-foreground mb-2">
-                Introduce yourself and mention which of your items you'd like to offer
+                Introduce yourself and mention which of your items you&apos;d like to offer
               </p>
               <textarea
                 rows={3}
                 className="input-field resize-none"
-                placeholder={`Hi ${swapModalListing.ownerName.split(' ')[0]}! I love your ${swapModalListing.title.toLowerCase()}. I'd like to offer...`}
+                placeholder={`Hi ${swapModalListing.ownerName.split(' ')[0]}! I love your ${swapModalListing.title.toLowerCase()}. I would like to offer...`}
               />
             </div>
 
             {/* Actions */}
             <div className="flex gap-3">
-              <button
-                onClick={() => setSwapModalListing(null)}
-                className="flex-1 py-2.5 rounded-xl border border-border text-sm font-600 text-foreground hover:bg-muted transition-colors"
+              <a
+                href="/messages"
+                className="flex-1 py-2.5 rounded-xl border border-border text-sm font-600 text-foreground hover:bg-muted transition-colors flex items-center justify-center"
               >
-                Cancel
-              </button>
+                Message
+              </a>
               <button
                 onClick={handleConfirmSwap}
                 className="flex-[2] btn-primary py-2.5 rounded-xl text-sm font-600 flex items-center justify-center gap-2"

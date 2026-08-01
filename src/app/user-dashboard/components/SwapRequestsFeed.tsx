@@ -29,20 +29,22 @@ export default function SwapRequestsFeed() {
         r.id === req.id ? { ...r, status: 'accepted', statusLabel: 'Accepted — confirm meetup' } : r
       )
     );
-    toast.success(`Swap accepted with ${req.otherUserName}! Send them a message to arrange the exchange.`);
+    toast.success(
+      `Swap accepted with ${req.otherUserName}! Send them a message to arrange the exchange.`
+    );
   };
 
   const handleDecline = (req: SwapRequest) => {
     // BACKEND INTEGRATION: PATCH /api/swap-requests/:id with { status: 'rejected' }
     setRequests((prev) =>
-      prev.map((r) =>
-        r.id === req.id ? { ...r, status: 'rejected', statusLabel: 'Declined' } : r
-      )
+      prev.map((r) => (r.id === req.id ? { ...r, status: 'rejected', statusLabel: 'Declined' } : r))
     );
     toast.info(`Swap request from ${req.otherUserName} declined`);
   };
 
-  const incomingPending = requests.filter((r) => r.type === 'incoming' && r.status === 'pending').length;
+  const incomingPending = requests.filter(
+    (r) => r.type === 'incoming' && r.status === 'pending'
+  ).length;
 
   return (
     <div>
@@ -76,7 +78,9 @@ export default function SwapRequestsFeed() {
         {filtered.length === 0 && (
           <div className="bg-card rounded-2xl border border-border p-8 text-center">
             <ArrowLeftRight size={24} className="text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No {activeFilter !== 'all' ? activeFilter : ''} swap requests yet</p>
+            <p className="text-sm text-muted-foreground">
+              No {activeFilter !== 'all' ? activeFilter : ''} swap requests yet
+            </p>
           </div>
         )}
 
@@ -84,7 +88,9 @@ export default function SwapRequestsFeed() {
           <div
             key={req.id}
             className={`bg-card rounded-2xl border p-4 transition-all duration-150 hover:shadow-card ${
-              req.status === 'pending' && req.type === 'incoming' ?'border-warning/40 bg-warning/5' :'border-border'
+              req.status === 'pending' && req.type === 'incoming'
+                ? 'border-warning/40 bg-warning/5'
+                : 'border-border'
             }`}
           >
             <div className="flex items-start gap-3">
@@ -101,9 +107,7 @@ export default function SwapRequestsFeed() {
                     <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full capitalize">
                       {req.type}
                     </span>
-                    <Badge variant={STATUS_VARIANT_MAP[req.status]}>
-                      {req.statusLabel}
-                    </Badge>
+                    <Badge variant={STATUS_VARIANT_MAP[req.status]}>{req.statusLabel}</Badge>
                   </div>
                   <div className="flex items-center gap-1 text-muted-foreground shrink-0">
                     <Clock size={11} />
@@ -121,10 +125,13 @@ export default function SwapRequestsFeed() {
                     {req.type === 'incoming' ? req.myItem : req.theirItem}
                   </span>
                   {/* Value comparison */}
-                  <span className={`text-[11px] font-500 px-2 py-0.5 rounded-full tabular-nums ${
-                    Math.abs(req.theirItemValue - req.myItemValue) > 25
-                      ? 'bg-warning/15 text-warning' :'bg-positive/10 text-positive'
-                  }`}>
+                  <span
+                    className={`text-[11px] font-500 px-2 py-0.5 rounded-full tabular-nums ${
+                      Math.abs(req.theirItemValue - req.myItemValue) > 25
+                        ? 'bg-warning/15 text-warning'
+                        : 'bg-positive/10 text-positive'
+                    }`}
+                  >
                     ${req.theirItemValue} ↔ ${req.myItemValue}
                   </span>
                 </div>
@@ -136,10 +143,10 @@ export default function SwapRequestsFeed() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1.5 text-xs font-500 text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted">
+                  <a href="/messages" className="flex items-center gap-1.5 text-xs font-500 text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted">
                     <MessageSquare size={13} />
                     Message
-                  </button>
+                  </a>
                   {req.status === 'pending' && req.type === 'incoming' && (
                     <>
                       <button

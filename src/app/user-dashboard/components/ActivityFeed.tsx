@@ -3,7 +3,6 @@ import { ArrowLeftRight, Eye, MessageSquare, Heart, CheckCircle, Clock } from 'l
 import { ACTIVITY_FEED } from './dashboardData';
 import Icon from '@/components/ui/AppIcon';
 
-
 const ICON_MAP: Record<string, React.ElementType> = {
   ArrowLeftRight,
   Eye,
@@ -36,7 +35,9 @@ export default function ActivityFeed() {
           const colorClass = TYPE_COLORS[item.type] || 'bg-muted text-muted-foreground';
           return (
             <div key={item.id} className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${colorClass}`}>
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${colorClass}`}
+              >
                 <Icon size={14} />
               </div>
               <div className="flex-1 min-w-0">

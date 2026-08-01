@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import KPIBentoGrid from './KPIBentoGrid';
 import MyListingsTable from './MyListingsTable';
@@ -21,7 +22,16 @@ const ValueBalanceChart = dynamic(() => import('./ValueBalanceChart'), {
 type DashboardTab = 'listings' | 'requests';
 
 export default function DashboardClient() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<DashboardTab>('listings');
+
+  // Set active tab from URL query parameter
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'listings' || tabParam === 'requests') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   return (
     <div className="fade-in">
@@ -53,10 +63,12 @@ export default function DashboardClient() {
           {/* Tab section: My Listings / Swap Requests */}
           <div>
             <div className="flex bg-muted rounded-xl p-1 mb-5 w-fit">
-              {([
-                { key: 'listings', label: 'My Listings' },
-                { key: 'requests', label: 'Swap Requests' },
-              ] as { key: DashboardTab; label: string }[]).map((tab) => (
+              {(
+                [
+                  { key: 'listings', label: 'My Listings' },
+                  { key: 'requests', label: 'Swap Requests' },
+                ] as { key: DashboardTab; label: string }[]
+              ).map((tab) => (
                 <button
                   key={`dash-tab-${tab.key}`}
                   onClick={() => setActiveTab(tab.key)}
@@ -76,11 +88,7 @@ export default function DashboardClient() {
               ))}
             </div>
 
-            {activeTab === 'listings' ? (
-              <MyListingsTable />
-            ) : (
-              <SwapRequestsFeed />
-            )}
+            {activeTab === 'listings' ? <MyListingsTable /> : <SwapRequestsFeed />}
           </div>
         </div>
 

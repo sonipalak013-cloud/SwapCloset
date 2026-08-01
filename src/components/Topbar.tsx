@@ -1,12 +1,21 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, Bell, Plus, Menu, X, ArrowLeftRight } from 'lucide-react';
 import AppLogo from '@/components/ui/AppLogo';
 
 export default function Topbar() {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchVal.trim()) {
+      router.push(`/clothing-listings-page?search=${encodeURIComponent(searchVal.trim())}`);
+    }
+  };
 
   return (
     <>
@@ -18,7 +27,7 @@ export default function Topbar() {
         </div>
 
         {/* Search */}
-        <div className="hidden md:flex items-center flex-1 max-w-md relative">
+        <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md relative">
           <Search size={16} className="absolute left-3 text-muted-foreground" />
           <input
             type="text"
@@ -27,7 +36,7 @@ export default function Topbar() {
             onChange={(e) => setSearchVal(e?.target?.value)}
             className="w-full pl-9 pr-4 py-2 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
           />
-        </div>
+        </form>
 
         <div className="ml-auto flex items-center gap-2">
           {/* Add listing */}
@@ -41,7 +50,7 @@ export default function Topbar() {
 
           {/* Swap requests indicator */}
           <Link
-            href="/user-dashboard"
+            href="/swap-requests"
             className="relative p-2 rounded-lg hover:bg-muted transition-colors"
             title="Swap Requests"
           >
@@ -50,13 +59,21 @@ export default function Topbar() {
           </Link>
 
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg hover:bg-muted transition-colors" aria-label="Notifications">
+          <Link
+            href="/notifications"
+            className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+            title="Notifications"
+            aria-label="Notifications"
+          >
             <Bell size={18} className="text-muted-foreground" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
-          </button>
+          </Link>
 
           {/* Avatar */}
-          <Link href="/user-dashboard" className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+          <Link
+            href="/user-dashboard"
+            className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center"
+          >
             <span className="text-primary text-xs font-700">MA</span>
           </Link>
 
@@ -85,8 +102,9 @@ export default function Topbar() {
               {[
                 { href: '/user-dashboard', label: 'Dashboard' },
                 { href: '/clothing-listings-page', label: 'Browse Listings' },
-                { href: '/user-dashboard', label: 'Swap Requests' },
-                { href: '/user-dashboard', label: 'Messages' },
+                { href: '/swap-requests', label: 'Swap Requests' },
+                { href: '/messages', label: 'Messages' },
+                { href: '/notifications', label: 'Notifications' },
                 { href: '/sign-up-login-screen', label: 'Sign Out' },
               ]?.map((item) => (
                 <Link

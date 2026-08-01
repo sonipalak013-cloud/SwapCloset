@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
 
-
 interface NavItem {
   id: string;
   label: string;
@@ -28,14 +27,79 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { id: 'nav-dashboard', label: 'Dashboard', href: '/user-dashboard', icon: LayoutDashboard, group: 'main' },
-  { id: 'nav-listings', label: 'Browse Listings', href: '/clothing-listings-page', icon: Shirt, group: 'main' },
-  { id: 'nav-swaps', label: 'Swap Requests', href: '/user-dashboard', icon: ArrowLeftRight, badge: 3, group: 'main' },
-  { id: 'nav-messages', label: 'Messages', href: '/user-dashboard', icon: MessageSquare, badge: 2, group: 'main' },
-  { id: 'nav-nearby', label: 'Nearby Swaps', href: '/clothing-listings-page', icon: MapPin, group: 'discover' },
-  { id: 'nav-my-listings', label: 'My Listings', href: '/user-dashboard', icon: Package, group: 'discover' },
-  { id: 'nav-saved', label: 'Saved Items', href: '/clothing-listings-page', icon: Star, group: 'discover' },
-  { id: 'nav-settings', label: 'Settings', href: '/user-dashboard', icon: Settings, group: 'account' },
+  {
+    id: 'nav-dashboard',
+    label: 'Dashboard',
+    href: '/user-dashboard',
+    icon: LayoutDashboard,
+    group: 'main',
+  },
+  {
+    id: 'nav-listings',
+    label: 'Browse Listings',
+    href: '/clothing-listings-page',
+    icon: Shirt,
+    group: 'main',
+  },
+  {
+    id: 'nav-swaps',
+    label: 'Swap Requests',
+    href: '/swap-requests',
+    icon: ArrowLeftRight,
+    badge: 3,
+    group: 'main',
+  },
+  {
+    id: 'nav-messages',
+    label: 'Messages',
+    href: '/messages',
+    icon: MessageSquare,
+    badge: 2,
+    group: 'main',
+  },
+  {
+    id: 'nav-nearby',
+    label: 'Nearby Swaps',
+    href: '/clothing-listings-page?filter=nearby',
+    icon: MapPin,
+    group: 'discover',
+  },
+  {
+    id: 'nav-my-listings',
+    label: 'My Listings',
+    href: '/user-dashboard?tab=listings',
+    icon: Package,
+    group: 'discover',
+  },
+  {
+    id: 'nav-saved',
+    label: 'Saved Items',
+    href: '/favorites',
+    icon: Star,
+    group: 'discover',
+  },
+  {
+    id: 'nav-notifications',
+    label: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
+    badge: 5,
+    group: 'discover',
+  },
+  {
+    id: 'nav-profile',
+    label: 'Profile',
+    href: '/profile',
+    icon: Settings,
+    group: 'account',
+  },
+  {
+    id: 'nav-add-listing',
+    label: 'Add Listing',
+    href: '/add-listing',
+    icon: Package,
+    group: 'account',
+  },
 ];
 
 const groups: { key: string; label: string }[] = [
@@ -86,7 +150,8 @@ export default function Sidebar({ activePath }: SidebarProps) {
                     href={item.href}
                     className={`group relative flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg mb-0.5 transition-all duration-150 ${
                       isActive
-                        ? 'bg-primary/10 text-primary font-600' :'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'bg-primary/10 text-primary font-600'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                     title={collapsed ? item.label : undefined}
                   >

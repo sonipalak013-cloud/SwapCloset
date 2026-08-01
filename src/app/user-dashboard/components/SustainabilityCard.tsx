@@ -2,11 +2,22 @@ import React from 'react';
 import { Leaf, Recycle, Wind, Droplets } from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
 
-
 const IMPACT_STATS = [
   { id: 'impact-co2', icon: Wind, label: 'CO₂ avoided', value: '42 kg', subtext: 'vs buying new' },
-  { id: 'impact-water', icon: Droplets, label: 'Water saved', value: '8,400 L', subtext: 'avg per swap' },
-  { id: 'impact-items', icon: Recycle, label: 'Items diverted', value: '14', subtext: 'from landfill' },
+  {
+    id: 'impact-water',
+    icon: Droplets,
+    label: 'Water saved',
+    value: '8,400 L',
+    subtext: 'avg per swap',
+  },
+  {
+    id: 'impact-items',
+    icon: Recycle,
+    label: 'Items diverted',
+    value: '14',
+    subtext: 'from landfill',
+  },
 ];
 
 export default function SustainabilityCard() {
@@ -34,7 +45,9 @@ export default function SustainabilityCard() {
             <div key={stat?.id} className="text-center bg-secondary rounded-xl p-3">
               <Icon size={16} className="text-positive mx-auto mb-1" />
               <p className="text-sm font-700 text-foreground tabular-nums">{stat?.value}</p>
-              <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{stat?.label}</p>
+              <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">
+                {stat?.label}
+              </p>
             </div>
           );
         })}
@@ -43,7 +56,9 @@ export default function SustainabilityCard() {
       <div className="bg-muted rounded-xl p-3">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs font-500 text-foreground">Eco Champion badge</p>
-          <span className="text-xs font-600 text-primary tabular-nums">{totalSwaps}/{maxSwaps} swaps</span>
+          <span className="text-xs font-600 text-primary tabular-nums">
+            {totalSwaps}/{maxSwaps} swaps
+          </span>
         </div>
         <div className="h-2 bg-border rounded-full overflow-hidden">
           <div

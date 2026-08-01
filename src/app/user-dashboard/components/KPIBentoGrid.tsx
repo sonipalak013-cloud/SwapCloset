@@ -1,7 +1,15 @@
 import React from 'react';
-import { Package, ArrowLeftRight, CheckCircle, DollarSign, Leaf, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
+import {
+  Package,
+  ArrowLeftRight,
+  CheckCircle,
+  DollarSign,
+  Leaf,
+  AlertTriangle,
+  TrendingUp,
+  TrendingDown,
+} from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
-
 
 interface KPICardProps {
   id: string;
@@ -14,7 +22,15 @@ interface KPICardProps {
   className?: string;
 }
 
-function KPICard({ icon: Icon, label, value, subtext, trend, variant = 'default', className = '' }: KPICardProps) {
+function KPICard({
+  icon: Icon,
+  label,
+  value,
+  subtext,
+  trend,
+  variant = 'default',
+  className = '',
+}: KPICardProps) {
   const variantStyles = {
     default: 'bg-card border-border',
     alert: 'bg-negative/5 border-negative/25',
@@ -39,7 +55,9 @@ function KPICard({ icon: Icon, label, value, subtext, trend, variant = 'default'
   return (
     <div className={`rounded-2xl border p-5 ${variantStyles[variant]} ${className}`}>
       <div className="flex items-start justify-between mb-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconStyles[variant]}`}>
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconStyles[variant]}`}
+        >
           <Icon size={20} />
         </div>
         {variant === 'alert' && (
@@ -49,14 +67,26 @@ function KPICard({ icon: Icon, label, value, subtext, trend, variant = 'default'
           </div>
         )}
       </div>
-      <p className="text-[12px] font-500 text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-[12px] font-500 text-muted-foreground uppercase tracking-wide mb-1">
+        {label}
+      </p>
       <p className={`text-3xl font-700 tabular-nums mb-1 ${valueStyles[variant]}`}>{value}</p>
       <p className="text-xs text-muted-foreground">{subtext}</p>
       {trend && (
-        <div className={`flex items-center gap-1 mt-3 text-xs font-500 ${
-          trend.direction === 'up' ? 'text-positive' : trend.direction === 'down' ? 'text-negative' : 'text-muted-foreground'
-        }`}>
-          {trend.direction === 'up' ? <TrendingUp size={13} /> : trend.direction === 'down' ? <TrendingDown size={13} /> : null}
+        <div
+          className={`flex items-center gap-1 mt-3 text-xs font-500 ${
+            trend.direction === 'up'
+              ? 'text-positive'
+              : trend.direction === 'down'
+                ? 'text-negative'
+                : 'text-muted-foreground'
+          }`}
+        >
+          {trend.direction === 'up' ? (
+            <TrendingUp size={13} />
+          ) : trend.direction === 'down' ? (
+            <TrendingDown size={13} />
+          ) : null}
           <span>{trend.label}</span>
         </div>
       )}
@@ -89,7 +119,7 @@ export default function KPIBentoGrid() {
         value={3}
         subtext="Oldest request: 2 days ago"
         variant="alert"
-      />```tsx
+      />
       {/* Completed Swaps */}
       <KPICard
         id="kpi-completed"

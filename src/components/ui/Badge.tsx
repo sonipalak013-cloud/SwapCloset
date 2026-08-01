@@ -24,9 +24,5 @@ const variantClasses: Record<string, string> = {
 
 export default function Badge({ variant = 'draft', children, className = '' }: BadgeProps) {
   const cls = variantClasses[variant] || 'status-draft';
-  return (
-    <span className={`status-badge ${cls} ${className}`}>
-      {children}
-    </span>
-  );
+  return <span className={`status-badge ${cls} ${className}`}>{children}</span>;
 }

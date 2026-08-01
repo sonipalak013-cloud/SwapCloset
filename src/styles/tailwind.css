@@ -3,32 +3,32 @@
 @tailwind utilities;
 
 :root {
-  --background: #F5F0EB;
-  --foreground: #1C1917;
-  --primary: #2D7A4F;
-  --primary-foreground: #FFFFFF;
-  --secondary: #E8F5EE;
-  --secondary-foreground: #2D7A4F;
-  --accent: #E8663D;
-  --accent-foreground: #FFFFFF;
-  --muted: #EDE8E3;
-  --muted-foreground: #78716C;
-  --card: #FFFFFF;
-  --card-foreground: #1C1917;
-  --border: #DDD6CF;
-  --input: #EDE8E3;
-  --ring: #2D7A4F;
+  --background: #f5f0eb;
+  --foreground: #1c1917;
+  --primary: #2d7a4f;
+  --primary-foreground: #ffffff;
+  --secondary: #e8f5ee;
+  --secondary-foreground: #2d7a4f;
+  --accent: #e8663d;
+  --accent-foreground: #ffffff;
+  --muted: #ede8e3;
+  --muted-foreground: #78716c;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --border: #ddd6cf;
+  --input: #ede8e3;
+  --ring: #2d7a4f;
   --radius: 12px;
   --font-sans: var(--font-plus-jakarta-sans), sans-serif;
 
-  --positive: #2D7A4F;
-  --positive-bg: #E8F5EE;
-  --negative: #DC2626;
-  --negative-bg: #FEE2E2;
-  --warning: #D97706;
-  --warning-bg: #FEF3C7;
-  --info: #0369A1;
-  --info-bg: #E0F2FE;
+  --positive: #2d7a4f;
+  --positive-bg: #e8f5ee;
+  --negative: #dc2626;
+  --negative-bg: #fee2e2;
+  --warning: #d97706;
+  --warning-bg: #fef3c7;
+  --info: #0369a1;
+  --info-bg: #e0f2fe;
 }
 
 @layer base {
@@ -49,12 +49,18 @@
     scroll-behavior: smooth;
   }
 
-  h1, h2, h3, h4, h5, h6, p {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
     margin: 0;
   }
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
@@ -98,32 +104,46 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes slideUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .card-hover {
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
   }
 
   .card-hover:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
   }
 
   .btn-primary {
     background-color: var(--primary);
     color: var(--primary-foreground);
-    transition: background-color 0.15s ease, transform 0.1s ease;
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
   }
 
   .btn-primary:hover {
-    background-color: #245F3E;
+    background-color: #245f3e;
   }
 
   .btn-primary:active {
@@ -133,11 +153,13 @@
   .btn-accent {
     background-color: var(--accent);
     color: var(--accent-foreground);
-    transition: background-color 0.15s ease, transform 0.1s ease;
+    transition:
+      background-color 0.15s ease,
+      transform 0.1s ease;
   }
 
   .btn-accent:hover {
-    background-color: #CF5530;
+    background-color: #cf5530;
   }
 
   .btn-accent:active {
@@ -145,11 +167,11 @@
   }
 
   .gradient-brand {
-    background: linear-gradient(135deg, #2D7A4F 0%, #1A5C38 50%, #3D9B63 100%);
+    background: linear-gradient(135deg, #2d7a4f 0%, #1a5c38 50%, #3d9b63 100%);
   }
 
   .blob-primary {
-    background: radial-gradient(ellipse at center, rgba(45,122,79,0.15) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(45, 122, 79, 0.15) 0%, transparent 70%);
     filter: blur(40px);
   }
 }
@@ -191,8 +213,8 @@
   }
 
   .status-negotiating {
-    background-color: #F3E8FF;
-    color: #7C3AED;
+    background-color: #f3e8ff;
+    color: #7c3aed;
   }
 
   .condition-like-new {
@@ -223,13 +245,15 @@
     border-radius: 8px;
     font-size: 0.875rem;
     color: var(--foreground);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
     outline: none;
   }
 
   .input-field:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(45,122,79,0.12);
+    box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.12);
   }
 
   .input-field::placeholder {
@@ -238,6 +262,6 @@
 
   .input-field.error {
     border-color: var(--negative);
-    box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
   }
 }

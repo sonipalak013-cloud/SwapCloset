@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { MapPin, Heart, ArrowLeftRight, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
-import AppImage from '@/components/ui/AppImage';
 import Badge from '@/components/ui/Badge';
 import { Listing } from './listingsData';
 
@@ -33,14 +32,13 @@ export default function ListingCard({ listing, onRequestSwap }: ListingCardProps
   return (
     <div className="bg-card rounded-2xl border border-border overflow-hidden card-hover group cursor-pointer">
       {/* Image */}
-      <div className="relative h-52 overflow-hidden bg-muted">
-        <AppImage
-          src={listing.imageUrl}
-          alt={listing.imageAlt}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+      <div 
+        className="relative h-52 overflow-hidden"
+        style={{ backgroundColor: (listing as any).color || '#4A90A4' }}
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-white/90 text-sm font-600 text-center px-4">{listing.brand}</span>
+        </div>
         {/* Save button */}
         <button
           onClick={handleSave}
@@ -71,7 +69,9 @@ export default function ListingCard({ listing, onRequestSwap }: ListingCardProps
       <div className="p-4">
         {/* Title + brand */}
         <div className="mb-2">
-          <h3 className="text-sm font-600 text-foreground leading-snug truncate">{listing.title}</h3>
+          <h3 className="text-sm font-600 text-foreground leading-snug truncate">
+            {listing.title}
+          </h3>
           <p className="text-xs text-muted-foreground mt-0.5">{listing.brand}</p>
         </div>
 
@@ -82,7 +82,10 @@ export default function ListingCard({ listing, onRequestSwap }: ListingCardProps
             Size {listing.size}
           </span>
           {listing.tags.slice(0, 1).map((tag) => (
-            <span key={`tag-${listing.id}-${tag}`} className="bg-accent/10 text-accent text-[11px] font-500 px-2 py-0.5 rounded-full">
+            <span
+              key={`tag-${listing.id}-${tag}`}
+              className="bg-accent/10 text-accent text-[11px] font-500 px-2 py-0.5 rounded-full"
+            >
               {tag}
             </span>
           ))}

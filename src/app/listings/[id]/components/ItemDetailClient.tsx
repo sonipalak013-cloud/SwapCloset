@@ -1,0 +1,284 @@
+'use client';
+import React, { useState } from 'react';
+import { ArrowLeft, Heart, MessageSquare, ArrowLeftRight, MapPin, Share2, Shield, Star } from 'lucide-react';
+import { toast } from 'sonner';
+import Link from 'next/link';
+import Modal from '@/components/ui/Modal';
+import Badge from '@/components/ui/Badge';
+
+export default function ItemDetailClient({ listingId }: { listingId: string }) {
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [swapModalOpen, setSwapModalOpen] = useState(false);
+
+  // Mock listing data - in production this would be fetched from API
+  const listing = {
+    id: listingId,
+    title: 'Vintage Levi\'s 501 Jeans',
+    brand: 'Levi\'s',
+    category: 'Jeans & Pants',
+    size: '28',
+    gender: 'Women',
+    color: 'Blue',
+    condition: 'Good',
+    conditionLabel: 'Good - Minor wear',
+    estimatedValue: 45,
+    location: 'Portland, OR',
+    distance: 2.5,
+    availability: 'Available',
+    description: 'Classic Levi\'s 501 jeans in vintage wash. Perfectly worn-in with authentic fading. Minor distressing at hem but overall great condition. Size 28 waist, regular fit. Perfect for casual wear or styling with a vintage aesthetic.',
+    imageColor: '#4A90A4',
+    owner: {
+      name: 'Maya Alvarez',
+      avatar: 'MA',
+      location: 'Portland, OR',
+      rating: 4.8,
+      reviewCount: 23,
+      memberSince: '2024',
+      responseRate: '95%',
+    },
+    postedDaysAgo: 3,
+  };
+
+  const similarListings = [
+    { id: 2, title: 'High-Waisted Mom Jeans', brand: 'Zara', size: '28', value: 35, color: '#E8B4B8' },
+    { id: 3, title: 'Vintage Denim Jacket', brand: 'Levi\'s', size: 'M', value: 55, color: '#8B7355' },
+    { id: 4, title: 'Cropped Straight Jeans', brand: 'H&M', size: '28', value: 25, color: '#5D6D7E' },
+  ];
+
+  const handleFavorite = () => {
+    setIsFavorited(!isFavorited);
+    toast.success(isFavorited ? 'Removed from favorites' : 'Added to favorites');
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Link copied to clipboard');
+  };
+
+  const handleSwapRequest = () => {
+    setSwapModalOpen(true);
+  };
+
+  return (
+    <div className="fade-in">
+      {/* Back button */}
+      <Link href="/clothing-listings-page" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <ArrowLeft size={16} />
+        Back to listings
+      </Link>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {/* Image Gallery */}
+        <div>
+          <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative" style={{ backgroundColor: listing.imageColor }}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-white/90 text-lg font-600">{listing.brand}</span>
+                <p className="text-white/70 text-sm mt-1">{listing.title}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Item Details */}
+        <div>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <Badge variant="active" className="mb-3">{listing.availability}</Badge>
+              <h1 className="text-2xl lg:text-3xl font-700 text-foreground mb-2">{listing.title}</h1>
+              <p className="text-lg text-muted-foreground">{listing.brand} · {listing.category}</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleFavorite}
+                className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+                  isFavorited ? 'border-negative bg-negative/10 text-negative' : 'border-border bg-card text-muted-foreground hover:text-foreground'
+                }`}
+                aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+              >
+                <Heart size={20} fill={isFavorited ? 'currentColor' : 'none'} />
+              </button>
+              <button
+                onClick={handleShare}
+                className="w-10 h-10 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+                aria-label="Share listing"
+              >
+                <Share2 size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="bg-secondary rounded-2xl p-6 mb-6">
+            <div className="flex items-baseline gap-2 mb-2">
+              <span className="text-3xl font-700 text-foreground">₹{listing.estimatedValue}</span>
+              <span className="text-sm text-muted-foreground">estimated swap value</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Value based on brand, condition, and market data</p>
+          </div>
+
+          {/* Quick Info */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <p className="text-xs text-muted-foreground mb-1">Size</p>
+              <p className="text-sm font-600 text-foreground">{listing.size}</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <p className="text-xs text-muted-foreground mb-1">Gender</p>
+              <p className="text-sm font-600 text-foreground">{listing.gender}</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <p className="text-xs text-muted-foreground mb-1">Condition</p>
+              <p className="text-sm font-600 text-foreground">{listing.conditionLabel}</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <p className="text-xs text-muted-foreground mb-1">Color</p>
+              <p className="text-sm font-600 text-foreground">{listing.color}</p>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <MapPin size={16} />
+            <span>{listing.location} · {listing.distance} miles away</span>
+          </div>
+
+          {/* Description */}
+          <div className="mb-6">
+            <h3 className="text-base font-600 text-foreground mb-2">Description</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{listing.description}</p>
+          </div>
+
+          {/* Owner Info */}
+          <div className="bg-card rounded-2xl border border-border p-5 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-primary text-sm font-700">{listing.owner.avatar}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-600 text-foreground">{listing.owner.name}</p>
+                <p className="text-xs text-muted-foreground">Member since {listing.owner.memberSince} · {listing.owner.responseRate} response rate</p>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-1">
+                  <Star size={14} className="fill-warning text-warning" />
+                  <span className="text-sm font-600 text-foreground">{listing.owner.rating}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{listing.owner.reviewCount} reviews</p>
+              </div>
+            </div>
+            <Link href="/messages" className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-border text-sm font-600 text-foreground hover:bg-muted transition-colors">
+              <MessageSquare size={16} />
+              Message Owner
+            </Link>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <Link href="/messages" className="flex-1 py-3 rounded-xl border border-border text-sm font-600 text-foreground hover:bg-muted transition-colors flex items-center justify-center">
+              <MessageSquare size={18} className="mr-2" />
+              Message
+            </Link>
+            <button
+              onClick={handleSwapRequest}
+              className="flex-[2] btn-primary py-3 rounded-xl text-sm font-600 flex items-center justify-center gap-2"
+            >
+              <ArrowLeftRight size={18} />
+              Request Swap
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Similar Listings */}
+      <div>
+        <h2 className="text-xl font-700 text-foreground mb-4">Similar Listings</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {similarListings.map((item) => (
+            <Link
+              key={item.id}
+              href={`/listings/${item.id}`}
+              className="bg-card rounded-2xl border border-border overflow-hidden hover:shadow-card transition-all duration-200 group"
+            >
+              <div className="aspect-square relative" style={{ backgroundColor: item.color }}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white/80 text-xs font-500 text-center px-2">{item.brand}</span>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-sm font-600 text-foreground mb-1 truncate">{item.title}</p>
+                <p className="text-xs text-muted-foreground mb-2">{item.brand} · Size {item.size}</p>
+                <p className="text-sm font-600 text-primary">₹{item.value}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Swap Request Modal */}
+      <Modal
+        open={swapModalOpen}
+        onClose={() => setSwapModalOpen(false)}
+        title="Send Swap Request"
+        maxWidth="max-w-lg"
+      >
+        <div>
+          <div className="flex gap-4 p-4 bg-muted rounded-xl mb-5">
+            <div className="w-16 h-16 rounded-xl shrink-0" style={{ backgroundColor: listing.imageColor }}>
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-white/80 text-xs font-500">{listing.brand}</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-600 text-foreground">{listing.title}</p>
+              <p className="text-xs text-muted-foreground">{listing.brand} · Size {listing.size}</p>
+              <p className="text-xs text-primary font-600 mt-1">Est. value: ₹{listing.estimatedValue}</p>
+            </div>
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-500 text-foreground mb-1.5">
+              Select your item to offer
+            </label>
+            <select className="input-field">
+              <option value="">Choose from your listings...</option>
+              <option value="1">My Vintage Denim Jacket - ₹55</option>
+              <option value="2">Floral Summer Dress - ₹35</option>
+              <option value="3">Classic White Sneakers - ₹40</option>
+            </select>
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-500 text-foreground mb-1.5">
+              Message to {listing.owner.name.split(' ')[0]}
+            </label>
+            <textarea
+              rows={3}
+              className="input-field resize-none"
+              placeholder={`Hi ${listing.owner.name.split(' ')[0]}! I love your ${listing.title.toLowerCase()}. I would like to offer...`}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setSwapModalOpen(false)}
+              className="flex-1 py-2.5 rounded-xl border border-border text-sm font-600 text-foreground hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                toast.success('Swap request sent!');
+                setSwapModalOpen(false);
+              }}
+              className="flex-[2] btn-primary py-2.5 rounded-xl text-sm font-600 flex items-center justify-center gap-2"
+            >
+              <ArrowLeftRight size={15} />
+              Send Request
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}

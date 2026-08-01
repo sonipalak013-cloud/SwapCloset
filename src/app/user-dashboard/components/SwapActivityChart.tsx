@@ -31,7 +31,10 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       <p className="font-600 text-foreground mb-2">{label}</p>
       {payload.map((entry) => (
         <div key={`tooltip-${entry.name}`} className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: entry.color }}
+          />
           <span className="text-muted-foreground capitalize">{entry.name}:</span>
           <span className="font-600 text-foreground tabular-nums">{entry.value}</span>
         </div>
@@ -46,7 +49,9 @@ export default function SwapActivityChart() {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-base font-600 text-foreground">Swap Activity</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Last 8 weeks — requests sent, received & completed</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Last 8 weeks — requests sent, received & completed
+          </p>
         </div>
         <span className="text-[11px] text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
           Jun 9 – Jul 28, 2026

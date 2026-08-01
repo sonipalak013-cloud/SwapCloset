@@ -4,12 +4,19 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
-  Eye, EyeOff, ArrowRight, Check, Leaf, Copy,
-  Shirt, ArrowLeftRight, MapPin, Star,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Check,
+  Leaf,
+  Copy,
+  Shirt,
+  ArrowLeftRight,
+  MapPin,
+  Star,
 } from 'lucide-react';
 import AppLogo from '@/components/ui/AppLogo';
 import Icon from '@/components/ui/AppIcon';
-
 
 // ─── Mock credentials ────────────────────────────────────────────────
 const MOCK_CREDENTIALS = {
@@ -43,7 +50,18 @@ interface SignupStep2Data {
 const TOP_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const BOTTOM_SIZES = ['24', '26', '28', '30', '32', '34', '36'];
 const SHOE_SIZES = ['6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '11'];
-const STYLE_TAGS = ['Casual', 'Boho', 'Minimalist', 'Streetwear', 'Vintage', 'Athletic', 'Formal', 'Cottagecore', 'Y2K', 'Preppy'];
+const STYLE_TAGS = [
+  'Casual',
+  'Boho',
+  'Minimalist',
+  'Streetwear',
+  'Vintage',
+  'Athletic',
+  'Formal',
+  'Cottagecore',
+  'Y2K',
+  'Preppy',
+];
 
 // ─── Features list ────────────────────────────────────────────────────
 const features = [
@@ -157,10 +175,13 @@ export default function AuthPageClient() {
             <span>Sustainable fashion, one swap at a time</span>
           </div>
           <h1 className="text-hero-xl text-white font-800 leading-tight mb-4">
-            Your closet is<br />someone's treasure
+            Your closet is
+            <br />
+            someone&apos;s treasure
           </h1>
           <p className="text-white/75 text-base leading-relaxed max-w-sm">
-            Join thousands of fashion lovers who swap instead of shop. Refresh your wardrobe for free while keeping clothes out of landfills.
+            Join thousands of fashion lovers who swap instead of shop. Refresh your wardrobe for
+            free while keeping clothes out of landfills.
           </p>
 
           {/* Stats */}
@@ -208,7 +229,10 @@ export default function AuthPageClient() {
             {(['login', 'signup'] as const).map((tab) => (
               <button
                 key={`tab-${tab}`}
-                onClick={() => { setActiveTab(tab); setSignupStep(1); }}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setSignupStep(1);
+                }}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-600 transition-all duration-200 ${
                   activeTab === tab
                     ? 'bg-card text-foreground shadow-card'
@@ -222,7 +246,10 @@ export default function AuthPageClient() {
 
           {/* ── LOGIN FORM ── */}
           {activeTab === 'login' && (
-            <form onSubmit={loginForm.handleSubmit(handleLoginSubmit)} className="space-y-5 fade-in">
+            <form
+              onSubmit={loginForm.handleSubmit(handleLoginSubmit)}
+              className="space-y-5 fade-in"
+            >
               <div>
                 <h2 className="text-2xl font-700 text-foreground mb-1">Welcome back</h2>
                 <p className="text-sm text-muted-foreground">Sign in to manage your swaps</p>
@@ -239,11 +266,16 @@ export default function AuthPageClient() {
                   placeholder="you@example.com"
                   {...loginForm.register('email', {
                     required: 'Email is required',
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email' },
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'Enter a valid email',
+                    },
                   })}
                 />
                 {loginForm.formState.errors.email && (
-                  <p className="mt-1.5 text-xs text-negative">{loginForm.formState.errors.email.message}</p>
+                  <p className="mt-1.5 text-xs text-negative">
+                    {loginForm.formState.errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -275,7 +307,9 @@ export default function AuthPageClient() {
                   </button>
                 </div>
                 {loginForm.formState.errors.password && (
-                  <p className="mt-1.5 text-xs text-negative">{loginForm.formState.errors.password.message}</p>
+                  <p className="mt-1.5 text-xs text-negative">
+                    {loginForm.formState.errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -325,10 +359,22 @@ export default function AuthPageClient() {
                 className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors text-sm font-500 text-foreground"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z" fill="#4285F4"/>
-                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-                  <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                  <path
+                    d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"
+                    fill="#EA4335"
+                  />
                 </svg>
                 Continue with Google
               </button>
@@ -336,7 +382,9 @@ export default function AuthPageClient() {
               {/* Demo credentials box */}
               <div className="bg-secondary border border-primary/20 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-600 text-primary uppercase tracking-wide">Demo Account</p>
+                  <p className="text-xs font-600 text-primary uppercase tracking-wide">
+                    Demo Account
+                  </p>
                   <button
                     type="button"
                     onClick={fillDemoCredentials}
@@ -350,9 +398,14 @@ export default function AuthPageClient() {
                     { label: 'Email', value: MOCK_CREDENTIALS.email, field: 'email' },
                     { label: 'Password', value: MOCK_CREDENTIALS.password, field: 'password' },
                   ].map((cred) => (
-                    <div key={`cred-${cred.field}`} className="flex items-center justify-between bg-card rounded-lg px-3 py-2">
+                    <div
+                      key={`cred-${cred.field}`}
+                      className="flex items-center justify-between bg-card rounded-lg px-3 py-2"
+                    >
                       <div>
-                        <p className="text-[10px] text-muted-foreground font-500 uppercase tracking-wide">{cred.label}</p>
+                        <p className="text-[10px] text-muted-foreground font-500 uppercase tracking-wide">
+                          {cred.label}
+                        </p>
                         <p className="text-xs font-500 text-foreground font-mono">{cred.value}</p>
                       </div>
                       <button
@@ -392,13 +445,16 @@ export default function AuthPageClient() {
                         {signupStep > step ? <Check size={14} /> : step}
                       </div>
                       {step < 2 && (
-                        <div className={`flex-1 h-0.5 rounded transition-all duration-500 ${signupStep > step ? 'bg-primary' : 'bg-border'}`} />
+                        <div
+                          className={`flex-1 h-0.5 rounded transition-all duration-500 ${signupStep > step ? 'bg-primary' : 'bg-border'}`}
+                        />
                       )}
                     </React.Fragment>
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Step {signupStep} of 2 — {signupStep === 1 ? 'Account details' : 'Style preferences'}
+                  Step {signupStep} of 2 —{' '}
+                  {signupStep === 1 ? 'Account details' : 'Style preferences'}
                 </p>
               </div>
 
@@ -407,12 +463,16 @@ export default function AuthPageClient() {
                 <form onSubmit={signupForm.handleSubmit(handleSignupStep1)} className="space-y-4">
                   <div>
                     <h2 className="text-2xl font-700 text-foreground mb-1">Create your account</h2>
-                    <p className="text-sm text-muted-foreground">Start swapping in under 2 minutes</p>
+                    <p className="text-sm text-muted-foreground">
+                      Start swapping in under 2 minutes
+                    </p>
                   </div>
 
                   {/* Full name */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-1.5">Full name</label>
+                    <label className="block text-sm font-500 text-foreground mb-1.5">
+                      Full name
+                    </label>
                     <input
                       type="text"
                       className={`input-field ${signupForm.formState.errors.fullName ? 'error' : ''}`}
@@ -420,31 +480,42 @@ export default function AuthPageClient() {
                       {...signupForm.register('fullName', { required: 'Full name is required' })}
                     />
                     {signupForm.formState.errors.fullName && (
-                      <p className="mt-1.5 text-xs text-negative">{signupForm.formState.errors.fullName.message}</p>
+                      <p className="mt-1.5 text-xs text-negative">
+                        {signupForm.formState.errors.fullName.message}
+                      </p>
                     )}
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-1.5">Email address</label>
+                    <label className="block text-sm font-500 text-foreground mb-1.5">
+                      Email address
+                    </label>
                     <input
                       type="email"
                       className={`input-field ${signupForm.formState.errors.email ? 'error' : ''}`}
                       placeholder="you@example.com"
                       {...signupForm.register('email', {
                         required: 'Email is required',
-                        pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email' },
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: 'Enter a valid email',
+                        },
                       })}
                     />
                     {signupForm.formState.errors.email && (
-                      <p className="mt-1.5 text-xs text-negative">{signupForm.formState.errors.email.message}</p>
+                      <p className="mt-1.5 text-xs text-negative">
+                        {signupForm.formState.errors.email.message}
+                      </p>
                     )}
                   </div>
 
                   {/* City */}
                   <div>
                     <label className="block text-sm font-500 text-foreground mb-1.5">City</label>
-                    <p className="text-xs text-muted-foreground mb-1.5">Used to find nearby swap partners</p>
+                    <p className="text-xs text-muted-foreground mb-1.5">
+                      Used to find nearby swap partners
+                    </p>
                     <input
                       type="text"
                       className={`input-field ${signupForm.formState.errors.city ? 'error' : ''}`}
@@ -452,13 +523,17 @@ export default function AuthPageClient() {
                       {...signupForm.register('city', { required: 'City is required' })}
                     />
                     {signupForm.formState.errors.city && (
-                      <p className="mt-1.5 text-xs text-negative">{signupForm.formState.errors.city.message}</p>
+                      <p className="mt-1.5 text-xs text-negative">
+                        {signupForm.formState.errors.city.message}
+                      </p>
                     )}
                   </div>
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-1.5">Password</label>
+                    <label className="block text-sm font-500 text-foreground mb-1.5">
+                      Password
+                    </label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
@@ -479,19 +554,25 @@ export default function AuthPageClient() {
                       </button>
                     </div>
                     {signupForm.formState.errors.password && (
-                      <p className="mt-1.5 text-xs text-negative">{signupForm.formState.errors.password.message}</p>
+                      <p className="mt-1.5 text-xs text-negative">
+                        {signupForm.formState.errors.password.message}
+                      </p>
                     )}
                   </div>
 
                   {/* Confirm password */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-1.5">Confirm password</label>
+                    <label className="block text-sm font-500 text-foreground mb-1.5">
+                      Confirm password
+                    </label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         className={`input-field pr-10 ${signupForm.formState.errors.confirmPassword ? 'error' : ''}`}
                         placeholder="••••••••"
-                        {...signupForm.register('confirmPassword', { required: 'Please confirm your password' })}
+                        {...signupForm.register('confirmPassword', {
+                          required: 'Please confirm your password',
+                        })}
                       />
                       <button
                         type="button"
@@ -503,7 +584,9 @@ export default function AuthPageClient() {
                       </button>
                     </div>
                     {signupForm.formState.errors.confirmPassword && (
-                      <p className="mt-1.5 text-xs text-negative">{signupForm.formState.errors.confirmPassword.message}</p>
+                      <p className="mt-1.5 text-xs text-negative">
+                        {signupForm.formState.errors.confirmPassword.message}
+                      </p>
                     )}
                   </div>
 
@@ -517,9 +600,13 @@ export default function AuthPageClient() {
 
                   <p className="text-xs text-muted-foreground text-center">
                     By continuing, you agree to our{' '}
-                    <button type="button" className="text-primary hover:underline">Terms of Service</button>
-                    {' '}and{' '}
-                    <button type="button" className="text-primary hover:underline">Privacy Policy</button>
+                    <button type="button" className="text-primary hover:underline">
+                      Terms of Service
+                    </button>{' '}
+                    and{' '}
+                    <button type="button" className="text-primary hover:underline">
+                      Privacy Policy
+                    </button>
                   </p>
                 </form>
               )}
@@ -528,8 +615,12 @@ export default function AuthPageClient() {
               {signupStep === 2 && (
                 <div className="space-y-5 fade-in">
                   <div>
-                    <h2 className="text-2xl font-700 text-foreground mb-1">Your style preferences</h2>
-                    <p className="text-sm text-muted-foreground">Help us find the best swap matches for you</p>
+                    <h2 className="text-2xl font-700 text-foreground mb-1">
+                      Your style preferences
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Help us find the best swap matches for you
+                    </p>
                   </div>
 
                   {/* Top size */}
@@ -555,7 +646,9 @@ export default function AuthPageClient() {
 
                   {/* Bottom size */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-2">Bottom size (waist)</label>
+                    <label className="block text-sm font-500 text-foreground mb-2">
+                      Bottom size (waist)
+                    </label>
                     <div className="flex flex-wrap gap-2">
                       {BOTTOM_SIZES.map((size) => (
                         <button
@@ -576,7 +669,9 @@ export default function AuthPageClient() {
 
                   {/* Shoe size */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-2">Shoe size (US)</label>
+                    <label className="block text-sm font-500 text-foreground mb-2">
+                      Shoe size (US)
+                    </label>
                     <div className="flex flex-wrap gap-2">
                       {SHOE_SIZES.map((size) => (
                         <button
@@ -597,8 +692,12 @@ export default function AuthPageClient() {
 
                   {/* Style tags */}
                   <div>
-                    <label className="block text-sm font-500 text-foreground mb-1.5">Style tags</label>
-                    <p className="text-xs text-muted-foreground mb-2">Pick all that describe your style</p>
+                    <label className="block text-sm font-500 text-foreground mb-1.5">
+                      Style tags
+                    </label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Pick all that describe your style
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {STYLE_TAGS.map((tag) => (
                         <button

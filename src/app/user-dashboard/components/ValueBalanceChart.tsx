@@ -32,7 +32,10 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       {payload.map((entry) => (
         <div key={`bar-tip-${entry.name}`} className="flex items-center justify-between gap-4 mb-1">
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: entry.color }} />
+            <span
+              className="w-2 h-2 rounded-sm shrink-0"
+              style={{ backgroundColor: entry.color }}
+            />
             <span className="text-muted-foreground">{entry.name}</span>
           </div>
           <span className="font-600 text-foreground tabular-nums">₹{entry.value}</span>
@@ -47,10 +50,16 @@ export default function ValueBalanceChart() {
     <div className="bg-card rounded-2xl border border-border p-5">
       <div className="mb-5">
         <h3 className="text-base font-600 text-foreground">Swap Value Exchange</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Monthly value given vs received (INR estimate)</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Monthly value given vs received (INR estimate)
+        </p>
       </div>
       <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={VALUE_BALANCE_DATA} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barGap={4}>
+        <BarChart
+          data={VALUE_BALANCE_DATA}
+          margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+          barGap={4}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
           <XAxis
             dataKey="month"
@@ -64,9 +73,25 @@ export default function ValueBalanceChart() {
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend iconType="square" iconSize={8} wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-          <Bar dataKey="given" name="Given" fill="var(--accent)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-          <Bar dataKey="received" name="Received" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+          <Legend
+            iconType="square"
+            iconSize={8}
+            wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+          />
+          <Bar
+            dataKey="given"
+            name="Given"
+            fill="var(--accent)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={28}
+          />
+          <Bar
+            dataKey="received"
+            name="Received"
+            fill="var(--primary)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={28}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
