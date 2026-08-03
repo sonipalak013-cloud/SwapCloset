@@ -1,43 +1,132 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Heart, MessageSquare, ArrowLeftRight, MapPin, Share2, Shield, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Modal from '@/components/ui/Modal';
 import Badge from '@/components/ui/Badge';
+import { LISTINGS, Listing } from '../../../clothing-listings-page/components/listingsData';
 
 export default function ItemDetailClient({ listingId }: { listingId: string }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
+  const [listing, setListing] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock listing data - in production this would be fetched from API
-  const listing = {
-    id: listingId,
-    title: 'Vintage Levi\'s 501 Jeans',
-    brand: 'Levi\'s',
-    category: 'Jeans & Pants',
-    size: '28',
-    gender: 'Women',
-    color: 'Blue',
-    condition: 'Good',
-    conditionLabel: 'Good - Minor wear',
-    estimatedValue: 45,
-    location: 'Portland, OR',
-    distance: 2.5,
-    availability: 'Available',
-    description: 'Classic Levi\'s 501 jeans in vintage wash. Perfectly worn-in with authentic fading. Minor distressing at hem but overall great condition. Size 28 waist, regular fit. Perfect for casual wear or styling with a vintage aesthetic.',
-    imageColor: '#4A90A4',
-    owner: {
-      name: 'Maya Alvarez',
-      avatar: 'MA',
-      location: 'Portland, OR',
-      rating: 4.8,
-      reviewCount: 23,
-      memberSince: '2024',
-      responseRate: '95%',
-    },
-    postedDaysAgo: 3,
-  };
+  useEffect(() => {
+    const loadListing = () => {
+      try {
+        // First check localStorage for user listings
+        const userListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+        const userListing = userListings.find((l: any) => l.id === listingId);
+        
+        if (userListing) {
+          console.log('Loading user listing:', userListing);
+          console.log('User listing imageUrl:', userListing.imageUrl);
+          console.log('User listing color:', userListing.color);
+          setListing({
+            id: userListing.id,
+            title: userListing.title,
+            brand: userListing.brand,
+            category: userListing.category,
+            size: userListing.size,
+            gender: userListing.gender,
+            color: userListing.color || '#4A90A4',
+            condition: userListing.condition,
+            conditionLabel: userListing.conditionLabel,
+            estimatedValue: userListing.estimatedValue,
+            location: userListing.ownerCity || 'Unknown',
+            distance: userListing.distanceMiles || 0,
+            availability: 'Available',
+            description: `A ${userListing.condition} ${userListing.brand} ${userListing.title}. Size ${userListing.size}.`,
+            imageColor: userListing.color || '#4A90A4',
+            imageUrl: userListing.imageUrl,
+            owner: {
+              name: userListing.ownerName,
+              avatar: userListing.ownerAvatar,
+              location: userListing.ownerCity || 'Unknown',
+              rating: 4.8,
+              reviewCount: 23,
+              memberSince: '2024',
+              responseRate: '95%',
+            },
+            postedDaysAgo: userListing.postedDaysAgo || 0,
+          });
+        } else {
+          // Check static listings
+          const staticListing = LISTINGS.find((l: Listing) => l.id === listingId);
+          if (staticListing) {
+            console.log('Loading static listing:', staticListing);
+            console.log('Static listing imageUrl:', staticListing.imageUrl);
+            console.log('Static listing color:', staticListing.color);
+            setListing({
+              id: staticListing.id,
+              title: staticListing.title,
+              brand: staticListing.brand,
+              category: staticListing.category,
+              size: staticListing.size,
+              gender: staticListing.gender,
+              color: staticListing.color || '#4A90A4',
+              condition: staticListing.condition,
+              conditionLabel: staticListing.conditionLabel,
+              estimatedValue: staticListing.estimatedValue,
+              location: staticListing.ownerCity,
+              distance: staticListing.distanceMiles,
+              availability: 'Available',
+              description: `A ${staticListing.conditionLabel} ${staticListing.brand} ${staticListing.title}. Size ${staticListing.size}.`,
+              imageColor: staticListing.color || '#4A90A4',
+              imageUrl: staticListing.imageUrl,
+              owner: {
+                name: staticListing.ownerName,
+                avatar: staticListing.ownerAvatar,
+                location: staticListing.ownerCity,
+                rating: 4.8,
+                reviewCount: 23,
+                memberSince: '2024',
+                responseRate: '95%',
+              },
+              postedDaysAgo: staticListing.postedDaysAgo,
+            });
+          } else {
+            // Fallback to mock data if not found
+            setListing({
+              id: listingId,
+              title: 'Vintage Levi\'s 501 Jeans',
+              brand: 'Levi\'s',
+              category: 'Jeans & Pants',
+              size: '28',
+              gender: 'Women',
+              color: 'Blue',
+              condition: 'Good',
+              conditionLabel: 'Good - Minor wear',
+              estimatedValue: 45,
+              location: 'Portland, OR',
+              distance: 2.5,
+              availability: 'Available',
+              description: 'Classic Levi\'s 501 jeans in vintage wash. Perfectly worn-in with authentic fading. Minor distressing at hem but overall great condition. Size 28 waist, regular fit. Perfect for casual wear or styling with a vintage aesthetic.',
+              imageColor: '#4A90A4',
+              owner: {
+                name: 'Maya Alvarez',
+                avatar: 'MA',
+                location: 'Portland, OR',
+                rating: 4.8,
+                reviewCount: 23,
+                memberSince: '2024',
+                responseRate: '95%',
+              },
+              postedDaysAgo: 3,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading listing:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadListing();
+  }, [listingId]);
 
   const similarListings = [
     { id: 2, title: 'High-Waisted Mom Jeans', brand: 'Zara', size: '28', value: 35, color: '#E8B4B8' },
@@ -59,6 +148,29 @@ export default function ItemDetailClient({ listingId }: { listingId: string }) {
     setSwapModalOpen(true);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-muted-foreground">Listing not found</p>
+        <Link href="/clothing-listings-page" className="text-primary hover:underline mt-2 inline-block">
+          Back to listings
+        </Link>
+      </div>
+    );
+  }
+
+  console.log('Rendering listing:', listing);
+  console.log('Listing imageUrl:', listing.imageUrl);
+  console.log('Listing imageColor:', listing.imageColor);
+
   return (
     <div className="fade-in">
       {/* Back button */}
@@ -70,13 +182,27 @@ export default function ItemDetailClient({ listingId }: { listingId: string }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
         {/* Image Gallery */}
         <div>
-          <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative" style={{ backgroundColor: listing.imageColor }}>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-white/90 text-lg font-600">{listing.brand}</span>
-                <p className="text-white/70 text-sm mt-1">{listing.title}</p>
+          <div className="aspect-square rounded-2xl overflow-hidden mb-4 relative bg-muted">
+            {listing.imageUrl ? (
+              <>
+                <img 
+                  src={listing.imageUrl} 
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error('Image failed to load:', listing.imageUrl);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: listing.imageColor }}>
+                <div className="text-center">
+                  <span className="text-white/90 text-lg font-600">{listing.brand}</span>
+                  <p className="text-white/70 text-sm mt-1">{listing.title}</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

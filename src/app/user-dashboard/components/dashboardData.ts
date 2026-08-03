@@ -28,6 +28,7 @@ export interface SwapRequest {
   statusLabel: string;
   sentDaysAgo: number;
   lastMessage: string;
+  listingId?: string;
 }
 
 export interface ActivityItem {
@@ -177,6 +178,7 @@ export const SWAP_REQUESTS: SwapRequest[] = [
     sentDaysAgo: 1,
     lastMessage:
       'Hi Maya! I love your skirt. Would you be interested in swapping for my Everlane blazer?',
+    listingId: 'mylisting-001',
   },
   {
     id: 'swap-req-002',
@@ -192,6 +194,7 @@ export const SWAP_REQUESTS: SwapRequest[] = [
     statusLabel: 'Awaiting your response',
     sentDaysAgo: 2,
     lastMessage: "These boots are exactly my style! I have Levi's 501s in great condition...",
+    listingId: 'mylisting-004',
   },
   {
     id: 'swap-req-003',
@@ -207,6 +210,7 @@ export const SWAP_REQUESTS: SwapRequest[] = [
     statusLabel: 'In negotiation',
     sentDaysAgo: 3,
     lastMessage: 'The value difference is a bit large — can you add another item to the swap?',
+    listingId: 'mylisting-002',
   },
   {
     id: 'swap-req-004',
@@ -222,6 +226,7 @@ export const SWAP_REQUESTS: SwapRequest[] = [
     statusLabel: 'Accepted — confirm meetup',
     sentDaysAgo: 1,
     lastMessage: "Love the linen shirt! Let's meet at Powell's on Saturday morning?",
+    listingId: 'mylisting-003',
   },
   {
     id: 'swap-req-005',
@@ -237,6 +242,7 @@ export const SWAP_REQUESTS: SwapRequest[] = [
     statusLabel: 'Declined',
     sentDaysAgo: 5,
     lastMessage: 'No worries! Good luck finding a swap.',
+    listingId: 'mylisting-001',
   },
 ];
 

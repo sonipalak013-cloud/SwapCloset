@@ -18,6 +18,7 @@ export interface Listing {
   gender: string;
   postedDaysAgo: number;
   saved: boolean;
+  color?: string;
 }
 
 export const LISTINGS: Listing[] = [
@@ -42,6 +43,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 2,
     saved: false,
+    color: '#8FBC8F',
   },
   {
     id: 'listing-002',
@@ -63,6 +65,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Unisex',
     postedDaysAgo: 1,
     saved: true,
+    color: '#4A90A4',
   },
   {
     id: 'listing-003',
@@ -84,6 +87,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 4,
     saved: false,
+    color: '#F5F5DC',
   },
   {
     id: 'listing-004',
@@ -105,6 +109,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Unisex',
     postedDaysAgo: 6,
     saved: false,
+    color: '#F5F5DC',
   },
   {
     id: 'listing-005',
@@ -126,6 +131,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Unisex',
     postedDaysAgo: 3,
     saved: false,
+    color: '#2C3E50',
   },
   {
     id: 'listing-006',
@@ -147,6 +153,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 1,
     saved: true,
+    color: '#87CEEB',
   },
   {
     id: 'listing-007',
@@ -169,6 +176,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 5,
     saved: false,
+    color: '#F5F5DC',
   },
   {
     id: 'listing-008',
@@ -190,6 +198,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Unisex',
     postedDaysAgo: 7,
     saved: false,
+    color: '#2C3E50',
   },
   {
     id: 'listing-009',
@@ -211,6 +220,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 2,
     saved: false,
+    color: '#C19A6B',
   },
   {
     id: 'listing-010',
@@ -233,6 +243,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 1,
     saved: true,
+    color: '#E2725B',
   },
   {
     id: 'listing-011',
@@ -255,6 +266,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Unisex',
     postedDaysAgo: 3,
     saved: false,
+    color: '#228B22',
   },
   {
     id: 'listing-012',
@@ -276,6 +288,7 @@ export const LISTINGS: Listing[] = [
     gender: 'Women',
     postedDaysAgo: 8,
     saved: false,
+    color: '#FFB6C1',
   },
 ];
 

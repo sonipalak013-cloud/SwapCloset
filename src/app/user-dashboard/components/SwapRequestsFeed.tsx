@@ -1,9 +1,11 @@
 'use client';
-import React, { useState } from 'react';
-import { ArrowLeftRight, MessageSquare, Check, X, ChevronRight, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeftRight, MessageSquare, Check, X, ChevronRight, Clock, Eye, MapPin, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import Badge from '@/components/ui/Badge';
+import Modal from '@/components/ui/Modal';
 import { SWAP_REQUESTS, SwapRequest } from './dashboardData';
+import { useRouter } from 'next/navigation';
 
 const STATUS_VARIANT_MAP: Record<string, string> = {
   pending: 'pending',
@@ -13,9 +15,83 @@ const STATUS_VARIANT_MAP: Record<string, string> = {
   negotiating: 'negotiating',
 };
 
+interface LocalSwapRequest {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  ownerName: string;
+  message: string;
+  status: string;
+  createdAt: string;
+  offeringValue?: number;
+  theirValue?: number;
+}
+
 export default function SwapRequestsFeed() {
+  const router = useRouter();
   const [requests, setRequests] = useState<SwapRequest[]>(SWAP_REQUESTS);
   const [activeFilter, setActiveFilter] = useState<'all' | 'incoming' | 'outgoing'>('all');
+  const [meetupModalOpen, setMeetupModalOpen] = useState(false);
+  const [selectedMeetup, setSelectedMeetup] = useState<SwapRequest | null>(null);
+
+  const handleViewListing = (listingId: string) => {
+    router.push(`/listings/${listingId}`);
+  };
+
+  const handleViewMeetupDetails = (req: SwapRequest) => {
+    setSelectedMeetup(req);
+    setMeetupModalOpen(true);
+  };
+
+  // Load swap requests from localStorage
+  useEffect(() => {
+    const loadSwapRequests = () => {
+      try {
+        const savedRequests = JSON.parse(localStorage.getItem('swapRequests') || '[]');
+        
+        if (savedRequests.length > 0) {
+          // Convert localStorage requests to SwapRequest format
+          const convertedRequests: SwapRequest[] = savedRequests.map((req: LocalSwapRequest) => ({
+            id: req.id,
+            type: 'outgoing',
+            otherUserName: req.ownerName,
+            otherUserAvatar: req.ownerName.substring(0, 2).toUpperCase(),
+            otherUserCity: 'Unknown',
+            theirItem: req.listingTitle,
+            theirItemValue: req.theirValue || 50,
+            myItem: 'Your item',
+            myItemValue: req.offeringValue || 50,
+            status: req.status as any,
+            statusLabel: req.status === 'pending' ? 'Pending' : req.status,
+            sentDaysAgo: Math.floor((Date.now() - new Date(req.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+            lastMessage: req.message,
+            listingId: req.listingId,
+          }));
+          
+          // Sort by creation date (newest first)
+          convertedRequests.sort((a, b) => {
+            const aTime = new Date(a.id.replace('swap-', '')).getTime();
+            const bTime = new Date(b.id.replace('swap-', '')).getTime();
+            return bTime - aTime;
+          });
+          
+          setRequests([...convertedRequests, ...SWAP_REQUESTS]);
+        }
+      } catch (error) {
+        console.error('Error loading swap requests:', error);
+      }
+    };
+    
+    loadSwapRequests();
+    const handleStorageChange = () => loadSwapRequests();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('swapRequestsUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('swapRequestsUpdated', handleStorageChange);
+    };
+  }, []);
 
   const filtered = requests.filter((r) => {
     if (activeFilter === 'all') return true;
@@ -40,6 +116,16 @@ export default function SwapRequestsFeed() {
       prev.map((r) => (r.id === req.id ? { ...r, status: 'rejected', statusLabel: 'Declined' } : r))
     );
     toast.info(`Swap request from ${req.otherUserName} declined`);
+  };
+
+  const handleConfirmMeetup = (req: SwapRequest) => {
+    // BACKEND INTEGRATION: PATCH /api/swap-requests/:id with { status: 'completed' }
+    setRequests((prev) =>
+      prev.map((r) =>
+        r.id === req.id ? { ...r, status: 'completed', statusLabel: 'Completed' } : r
+      )
+    );
+    toast.success(`Meetup confirmed with ${req.otherUserName}!`);
   };
 
   const incomingPending = requests.filter(
@@ -117,9 +203,18 @@ export default function SwapRequestsFeed() {
 
                 {/* Swap items */}
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="text-xs bg-muted px-2.5 py-1 rounded-lg text-foreground font-500 truncate max-w-[160px]">
-                    {req.type === 'incoming' ? req.theirItem : req.myItem}
-                  </span>
+                  {req.listingId ? (
+                    <button 
+                      onClick={() => req.listingId && handleViewListing(req.listingId)}
+                      className="text-xs bg-muted px-2.5 py-1 rounded-lg text-foreground font-500 truncate max-w-[160px] hover:bg-muted/80 transition-colors cursor-pointer"
+                    >
+                      {req.type === 'incoming' ? req.theirItem : req.myItem}
+                    </button>
+                  ) : (
+                    <span className="text-xs bg-muted px-2.5 py-1 rounded-lg text-foreground font-500 truncate max-w-[160px]">
+                      {req.type === 'incoming' ? req.theirItem : req.myItem}
+                    </span>
+                  )}
                   <ArrowLeftRight size={12} className="text-muted-foreground shrink-0" />
                   <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-lg font-500 truncate max-w-[160px]">
                     {req.type === 'incoming' ? req.myItem : req.theirItem}
@@ -166,9 +261,21 @@ export default function SwapRequestsFeed() {
                     </>
                   )}
                   {req.status === 'accepted' && (
-                    <button className="flex items-center gap-1.5 text-xs font-600 text-info px-3 py-1.5 rounded-lg bg-info/10 hover:bg-info/20 transition-colors">
+                    <button 
+                      onClick={() => handleConfirmMeetup(req)}
+                      className="flex items-center gap-1.5 text-xs font-600 text-info px-3 py-1.5 rounded-lg bg-info/10 hover:bg-info/20 transition-colors"
+                    >
                       <ChevronRight size={13} />
                       Confirm Meetup
+                    </button>
+                  )}
+                  {req.status === 'completed' && (
+                    <button 
+                      onClick={() => handleViewMeetupDetails(req)}
+                      className="flex items-center gap-1.5 text-xs font-600 text-positive px-3 py-1.5 rounded-lg bg-positive/10 hover:bg-positive/20 transition-colors"
+                    >
+                      <Eye size={13} />
+                      View Meetup
                     </button>
                   )}
                 </div>
@@ -177,6 +284,77 @@ export default function SwapRequestsFeed() {
           </div>
         ))}
       </div>
+
+      {/* Meetup Details Modal */}
+      <Modal
+        open={meetupModalOpen}
+        onClose={() => setMeetupModalOpen(false)}
+        title="Meetup Details"
+        maxWidth="max-w-md"
+      >
+        {selectedMeetup && (
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-primary text-sm font-700">{selectedMeetup.otherUserAvatar}</span>
+              </div>
+              <div>
+                <p className="text-sm font-600 text-foreground">{selectedMeetup.otherUserName}</p>
+                <p className="text-xs text-muted-foreground">{selectedMeetup.otherUserCity}</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center gap-3 bg-card rounded-xl p-4 border border-border">
+                <MapPin size={18} className="text-primary shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Meetup Location</p>
+                  <p className="text-sm font-600 text-foreground">Portland, OR - Downtown Area</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-card rounded-xl p-4 border border-border">
+                <Calendar size={18} className="text-primary shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Scheduled Date</p>
+                  <p className="text-sm font-600 text-foreground">
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4 border border-border">
+                <p className="text-xs text-muted-foreground mb-2">Items to Exchange</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-muted px-2.5 py-1 rounded-lg text-foreground font-500">
+                    {selectedMeetup.theirItem}
+                  </span>
+                  <ArrowLeftRight size={12} className="text-muted-foreground" />
+                  <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-lg font-500">
+                    {selectedMeetup.myItem}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <a
+                href="/messages"
+                className="flex-1 py-2.5 rounded-xl border border-border text-sm font-600 text-foreground hover:bg-muted transition-colors flex items-center justify-center"
+              >
+                <MessageSquare size={16} className="mr-2" />
+                Message
+              </a>
+              <button
+                onClick={() => setMeetupModalOpen(false)}
+                className="flex-1 btn-primary py-2.5 rounded-xl text-sm font-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

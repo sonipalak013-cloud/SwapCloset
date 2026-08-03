@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { Upload, X, Plus, ArrowRight } from 'lucide-react';
@@ -19,10 +19,10 @@ interface ListingFormData {
 }
 
 const CATEGORIES = [
-  'Tops & T-Shirts',
+  'Tops',
+  'Bottoms',
   'Dresses',
-  'Jeans & Pants',
-  'Jackets & Coats',
+  'Outerwear',
   'Shoes',
   'Accessories',
   'Skirts',
@@ -31,13 +31,15 @@ const CATEGORIES = [
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '24', '26', '28', '30', '32', '34', '36'];
 const GENDERS = ['Women', 'Men', 'Unisex', 'Kids'];
-const CONDITIONS = ['New with tags', 'Like new', 'Good', 'Fair', 'Poor'];
+const CONDITIONS = ['Like New', 'Good', 'Fair', 'Well Loved'];
 const BRANDS = ['Nike', 'Adidas', 'Zara', 'H&M', 'Levi\'s', 'Puma', 'Allen Solly', 'Roadster', 'Other'];
 
 export default function AddListingClient() {
   const router = useRouter();
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editListingId, setEditListingId] = useState<string | null>(null);
 
   const form = useForm<ListingFormData>({
     defaultValues: {
@@ -53,6 +55,42 @@ export default function AddListingClient() {
       description: '',
     },
   });
+
+  // Load edit data from localStorage if editing
+  useEffect(() => {
+    const editData = localStorage.getItem('editListing');
+    if (editData) {
+      try {
+        const listing = JSON.parse(editData);
+        setIsEditing(true);
+        setEditListingId(listing.id);
+        
+        // Populate form with existing data
+        form.reset({
+          title: listing.title || '',
+          brand: listing.brand || '',
+          category: listing.category || '',
+          size: listing.size || '',
+          gender: listing.gender || '',
+          color: listing.color || '',
+          condition: listing.condition || '',
+          estimatedValue: listing.estimatedValue || 0,
+          location: listing.location || '',
+          description: listing.description || '',
+        });
+        
+        // Load images if available
+        if (listing.imageUrl) {
+          setUploadedImages([listing.imageUrl]);
+        }
+        
+        // Clear edit data from localStorage
+        localStorage.removeItem('editListing');
+      } catch (error) {
+        console.error('Error loading edit data:', error);
+      }
+    }
+  }, [form]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -92,47 +130,90 @@ export default function AddListingClient() {
     };
     const defaultColor = categoryColors[data.category] || '#4A90A4';
     
-    // Create new listing object
-    const newListing = {
-      id: `listing-${Date.now()}`,
-      title: data.title,
-      brand: data.brand,
-      category: data.category,
-      size: data.size,
-      condition: 'good' as const,
-      conditionLabel: data.condition,
-      estimatedValue: data.estimatedValue,
-      swapValueRange: [Math.max(0, data.estimatedValue - 15), data.estimatedValue + 15] as [number, number],
-      imageUrl: uploadedImages[0] || '', // Use uploaded image or empty string
-      imageAlt: data.title,
-      color: defaultColor, // Add color for display
-      ownerName: 'You',
-      ownerAvatar: 'YO',
-      ownerCity: data.location,
-      distanceMiles: 0,
-      tags: [],
-      gender: data.gender,
-      postedDaysAgo: 0,
-      saved: false,
-    };
+    if (isEditing && editListingId) {
+      // Update existing listing
+      const existingListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+      const updatedListings = existingListings.map((listing: any) => {
+        if (listing.id === editListingId) {
+          return {
+            ...listing,
+            title: data.title,
+            brand: data.brand,
+            category: data.category,
+            size: data.size,
+            condition: data.condition.toLowerCase().replace(' ', '-') as 'like-new' | 'good' | 'fair' | 'well-loved',
+            conditionLabel: data.condition,
+            estimatedValue: data.estimatedValue,
+            swapValueRange: [Math.max(0, data.estimatedValue - 15), data.estimatedValue + 15] as [number, number],
+            imageUrl: uploadedImages[0] || listing.imageUrl,
+            imageAlt: data.title,
+            color: defaultColor,
+            ownerCity: data.location,
+            gender: data.gender,
+            description: data.description,
+          };
+        }
+        return listing;
+      });
+      
+      localStorage.setItem('userListings', JSON.stringify(updatedListings));
+      window.dispatchEvent(new Event('localStorageUpdated'));
+      
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setIsEditing(false);
+        setEditListingId(null);
+        toast.success('Listing updated successfully!');
+        router.push('/user-dashboard?tab=listings&scroll=true');
+      }, 1500);
+    } else {
+      // Create new listing object
+      const newListing = {
+        id: `listing-${Date.now()}`,
+        title: data.title,
+        brand: data.brand,
+        category: data.category,
+        size: data.size,
+        condition: data.condition.toLowerCase().replace(' ', '-') as 'like-new' | 'good' | 'fair' | 'well-loved',
+        conditionLabel: data.condition,
+        estimatedValue: data.estimatedValue,
+        swapValueRange: [Math.max(0, data.estimatedValue - 15), data.estimatedValue + 15] as [number, number],
+        imageUrl: uploadedImages[0] || '', // Use uploaded image or empty string
+        imageAlt: data.title,
+        color: defaultColor, // Add color for display
+        ownerName: 'You',
+        ownerAvatar: 'YO',
+        ownerCity: data.location,
+        distanceMiles: 0,
+        tags: [],
+        gender: data.gender,
+        postedDaysAgo: 0,
+        saved: false,
+      };
 
-    // Save to localStorage
-    const existingListings = JSON.parse(localStorage.getItem('userListings') || '[]');
-    localStorage.setItem('userListings', JSON.stringify([...existingListings, newListing]));
+      // Save to localStorage
+      const existingListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+      localStorage.setItem('userListings', JSON.stringify([...existingListings, newListing]));
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event('localStorageUpdated'));
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success('Listing created successfully!');
-      router.push('/user-dashboard?tab=listings');
-    }, 1500);
+      setTimeout(() => {
+        setIsSubmitting(false);
+        toast.success('Listing created successfully!');
+        router.push('/user-dashboard?tab=listings&scroll=true');
+      }, 1500);
+    }
   };
 
   return (
     <div className="fade-in max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-700 text-foreground mb-2">Create New Listing</h1>
+        <h1 className="text-2xl font-700 text-foreground mb-2">
+          {isEditing ? 'Edit Listing' : 'Create New Listing'}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Add your clothing item to the swap marketplace
+          {isEditing ? 'Update your clothing item details' : 'Add your clothing item to the swap marketplace'}
         </p>
       </div>
 

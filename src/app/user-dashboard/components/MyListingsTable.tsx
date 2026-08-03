@@ -45,37 +45,50 @@ export default function MyListingsTable() {
 
   // Load user listings from localStorage
   useEffect(() => {
-    try {
-      const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
-      console.log('MyListingsTable - Loaded from localStorage:', savedListings.length);
-      
-      if (savedListings.length > 0) {
-        // Convert localStorage listings to MyListing format
-        const convertedListings: MyListing[] = savedListings.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          brand: item.brand,
-          category: item.category,
-          size: item.size,
-          status: 'active',
-          estimatedValue: item.estimatedValue,
-          views: 0,
-          swapRequests: 0,
-          postedDate: 'Just now',
-          imageUrl: item.imageUrl || '',
-          imageAlt: item.imageAlt,
-          color: item.color || '#4A90A4', // Add color field
-        }));
-        console.log('MyListingsTable - Converted listings:', convertedListings.length);
-        setListings([...MY_LISTINGS, ...convertedListings]);
-      } else {
-        console.log('MyListingsTable - No user listings found, using mock data only');
+    const loadListings = () => {
+      try {
+        const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+        console.log('MyListingsTable - Loaded from localStorage:', savedListings.length);
+        
+        if (savedListings.length > 0) {
+          // Convert localStorage listings to MyListing format
+          const convertedListings: MyListing[] = savedListings.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            brand: item.brand,
+            category: item.category,
+            size: item.size,
+            status: 'active',
+            estimatedValue: item.estimatedValue,
+            views: 0,
+            swapRequests: 0,
+            postedDate: 'Just now',
+            imageUrl: item.imageUrl || '',
+            imageAlt: item.imageAlt,
+            color: item.color || '#4A90A4', // Add color field
+          }));
+          console.log('MyListingsTable - Converted listings:', convertedListings.length);
+          setListings([...MY_LISTINGS, ...convertedListings]);
+        } else {
+          console.log('MyListingsTable - No user listings found, using mock data only');
+          setListings(MY_LISTINGS);
+        }
+      } catch (error) {
+        console.error('MyListingsTable - Error loading listings:', error);
         setListings(MY_LISTINGS);
       }
-    } catch (error) {
-      console.error('MyListingsTable - Error loading listings:', error);
-      setListings(MY_LISTINGS);
-    }
+    };
+    
+    loadListings();
+    // Listen for storage changes
+    const handleStorageChange = () => loadListings();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('localStorageUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageUpdated', handleStorageChange);
+    };
   }, []);
 
   const handleSort = (key: SortKey) => {
@@ -162,7 +175,7 @@ export default function MyListingsTable() {
             {listings.length}
           </span>
         </div>
-        <button 
+        <button
           onClick={() => router.push('/add-listing')}
           className="flex items-center gap-2 btn-primary px-4 py-2 rounded-lg text-sm font-600"
         >
@@ -253,10 +266,23 @@ export default function MyListingsTable() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-10 h-10 rounded-lg shrink-0 flex items-center justify-center"
+                        className="w-10 h-10 rounded-lg shrink-0 overflow-hidden relative"
                         style={{ backgroundColor: (listing as any).color || '#4A90A4' }}
                       >
-                        <span className="text-white text-xs font-600">{listing.brand.substring(0, 2).toUpperCase()}</span>
+                        {listing.imageUrl ? (
+                          <img 
+                            src={listing.imageUrl} 
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              (e.currentTarget.parentElement as HTMLElement).querySelector('.fallback-brand')?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`absolute inset-0 flex items-center justify-center fallback-brand ${listing.imageUrl ? 'hidden' : ''}`}>
+                          <span className="text-white text-xs font-600">{listing.brand.substring(0, 2).toUpperCase()}</span>
+                        </div>
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-500 text-foreground truncate max-w-[180px]">
@@ -300,12 +326,18 @@ export default function MyListingsTable() {
                     <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         title="View listing"
+                        onClick={() => router.push(`/listings/${listing.id}`)}
                         className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <Eye size={14} />
                       </button>
                       <button
                         title="Edit listing"
+                        onClick={() => {
+                          // Store listing data for editing
+                          localStorage.setItem('editListing', JSON.stringify(listing));
+                          router.push('/add-listing');
+                        }}
                         className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                       >
                         <Edit3 size={14} />

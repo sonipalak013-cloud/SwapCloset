@@ -4,14 +4,16 @@ import { MapPin, Heart, ArrowLeftRight, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import Badge from '@/components/ui/Badge';
 import { Listing } from './listingsData';
+import { useRouter } from 'next/navigation';
 
 interface ListingCardProps {
   listing: Listing;
-  onRequestSwap: (listing: Listing) => void;
+  onRequestSwap?: (listing: Listing) => void;
 }
 
 export default function ListingCard({ listing, onRequestSwap }: ListingCardProps) {
-  const [saved, setSaved] = useState(listing.saved);
+  const router = useRouter();
+  const [saved, setSaved] = useState(listing.saved || false);
   const [isRequesting, setIsRequesting] = useState(false);
 
   const handleSave = (e: React.MouseEvent) => {
@@ -20,23 +22,44 @@ export default function ListingCard({ listing, onRequestSwap }: ListingCardProps
     toast.success(saved ? 'Removed from saved items' : 'Saved to your list');
   };
 
-  const handleRequestSwap = (e: React.MouseEvent) => {
+  const handleViewDetails = () => {
+    router.push(`/listings/${listing.id}`);
+  };
+
+  const handleRequestSwap = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsRequesting(true);
-    setTimeout(() => {
-      setIsRequesting(false);
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsRequesting(false);
+    if (onRequestSwap) {
       onRequestSwap(listing);
-    }, 600);
+    }
   };
 
   return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden card-hover group cursor-pointer">
+    <div 
+      className="bg-card rounded-2xl border border-border overflow-hidden card-hover group cursor-pointer"
+      onClick={handleViewDetails}
+    >
       {/* Image */}
       <div 
         className="relative h-52 overflow-hidden"
         style={{ backgroundColor: (listing as any).color || '#4A90A4' }}
       >
-        <div className="absolute inset-0 flex items-center justify-center">
+        {listing.imageUrl ? (
+          <img 
+            src={listing.imageUrl} 
+            alt={listing.imageAlt || listing.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback to colored background if image fails to load
+              e.currentTarget.style.display = 'none';
+              (e.currentTarget.parentElement as HTMLElement).querySelector('.fallback-brand')?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <div className={`absolute inset-0 flex items-center justify-center fallback-brand ${listing.imageUrl ? 'hidden' : ''}`}>
           <span className="text-white/90 text-sm font-600 text-center px-4">{listing.brand}</span>
         </div>
         {/* Save button */}

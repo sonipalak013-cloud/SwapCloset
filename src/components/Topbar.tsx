@@ -41,7 +41,7 @@ export default function Topbar() {
         <div className="ml-auto flex items-center gap-2">
           {/* Add listing */}
           <Link
-            href="/clothing-listings-page"
+            href="/add-listing"
             className="hidden md:flex items-center gap-2 btn-primary px-4 py-2 rounded-lg text-sm font-600"
           >
             <Plus size={16} />

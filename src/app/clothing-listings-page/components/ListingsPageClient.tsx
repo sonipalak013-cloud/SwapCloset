@@ -47,17 +47,32 @@ export default function ListingsPageClient() {
   const [swapModalListing, setSwapModalListing] = useState<Listing | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [userListings, setUserListings] = useState<Listing[]>([]);
+  const [swapMessage, setSwapMessage] = useState('');
+  const [offeringValue, setOfferingValue] = useState<number>(0);
 
   // Load user listings from localStorage
   useEffect(() => {
-    try {
-      const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
-      console.log('ListingsPage - Loaded user listings:', savedListings.length);
-      setUserListings(savedListings);
-    } catch (error) {
-      console.error('ListingsPage - Error loading listings:', error);
-      setUserListings([]);
-    }
+    const loadListings = () => {
+      try {
+        const savedListings = JSON.parse(localStorage.getItem('userListings') || '[]');
+        console.log('ListingsPage - Loaded user listings:', savedListings.length);
+        setUserListings(savedListings);
+      } catch (error) {
+        console.error('ListingsPage - Error loading listings:', error);
+        setUserListings([]);
+      }
+    };
+    
+    loadListings();
+    // Also listen for storage changes to update when new listings are added
+    const handleStorageChange = () => loadListings();
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('localStorageUpdated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageUpdated', handleStorageChange);
+    };
   }, []);
 
   // Read search query from URL
@@ -65,6 +80,12 @@ export default function ListingsPageClient() {
     const searchQuery = searchParams.get('search');
     if (searchQuery) {
       setSearch(searchQuery);
+    }
+    
+    // Handle nearby filter
+    const filterParam = searchParams.get('filter');
+    if (filterParam === 'nearby') {
+      setFilters((f) => ({ ...f, distance: '10 miles' }));
     }
   }, [searchParams]);
 
@@ -153,12 +174,33 @@ export default function ListingsPageClient() {
 
   const handleRequestSwap = (listing: Listing) => {
     setSwapModalListing(listing);
+    setSwapMessage('');
+    setOfferingValue(listing.estimatedValue);
   };
 
   const handleConfirmSwap = () => {
-    // BACKEND INTEGRATION: POST /api/swap-requests with { listingId, requesterId, message }
+    // Save swap request to localStorage
+    const swapRequest = {
+      id: `swap-${Date.now()}`,
+      listingId: swapModalListing?.id,
+      listingTitle: swapModalListing?.title,
+      ownerName: swapModalListing?.ownerName,
+      message: swapMessage || 'I would like to request a swap for this item.',
+      offeringValue: offeringValue,
+      theirValue: swapModalListing?.estimatedValue,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    
+    const existingRequests = JSON.parse(localStorage.getItem('swapRequests') || '[]');
+    localStorage.setItem('swapRequests', JSON.stringify([...existingRequests, swapRequest]));
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new Event('swapRequestsUpdated'));
+    
     toast.success(`Swap request sent to ${swapModalListing?.ownerName}!`);
     setSwapModalListing(null);
+    setSwapMessage('');
   };
 
   return (
@@ -394,7 +436,7 @@ export default function ListingsPageClient() {
                 <div className="text-center">
                   <p className="text-[11px] text-muted-foreground mb-1">Their item value</p>
                   <p className="text-lg font-700 text-foreground tabular-nums">
-                    ₹{swapModalListing.estimatedValue}
+                    ${swapModalListing.estimatedValue}
                   </p>
                 </div>
                 <div className="flex flex-col items-center gap-1">
@@ -403,7 +445,16 @@ export default function ListingsPageClient() {
                 </div>
                 <div className="text-center">
                   <p className="text-[11px] text-muted-foreground mb-1">Your offering value</p>
-                  <p className="text-lg font-700 text-primary tabular-nums">~₹650–₹800</p>
+                  <div className="flex items-center gap-1">
+                    <span className="text-lg font-700 text-primary">$</span>
+                    <input
+                      type="number"
+                      value={offeringValue}
+                      onChange={(e) => setOfferingValue(Number(e.target.value))}
+                      className="w-20 text-lg font-700 text-primary bg-transparent border-b-2 border-primary/30 focus:border-primary outline-none text-center tabular-nums"
+                      min="0"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -418,6 +469,8 @@ export default function ListingsPageClient() {
               </p>
               <textarea
                 rows={3}
+                value={swapMessage}
+                onChange={(e) => setSwapMessage(e.target.value)}
                 className="input-field resize-none"
                 placeholder={`Hi ${swapModalListing.ownerName.split(' ')[0]}! I love your ${swapModalListing.title.toLowerCase()}. I would like to offer...`}
               />

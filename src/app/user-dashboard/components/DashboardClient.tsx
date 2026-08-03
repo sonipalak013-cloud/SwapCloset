@@ -24,14 +24,31 @@ type DashboardTab = 'listings' | 'requests';
 export default function DashboardClient() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<DashboardTab>('listings');
+  const listingsSectionRef = React.useRef<HTMLDivElement>(null);
+  const [shouldScrollToListings, setShouldScrollToListings] = useState(false);
 
   // Set active tab from URL query parameter
   useEffect(() => {
     const tabParam = searchParams.get('tab');
+    const scrollParam = searchParams.get('scroll');
     if (tabParam === 'listings' || tabParam === 'requests') {
       setActiveTab(tabParam);
+      // Scroll if explicitly requested via URL parameter
+      if (tabParam === 'listings' && scrollParam === 'true') {
+        setShouldScrollToListings(true);
+      }
     }
   }, [searchParams]);
+
+  // Scroll to listings section when flag is set
+  useEffect(() => {
+    if (shouldScrollToListings && activeTab === 'listings' && listingsSectionRef.current) {
+      setTimeout(() => {
+        listingsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setShouldScrollToListings(false);
+      }, 100);
+    }
+  }, [shouldScrollToListings, activeTab]);
 
   return (
     <div className="fade-in">
@@ -61,7 +78,7 @@ export default function DashboardClient() {
           <SwapActivityChart />
 
           {/* Tab section: My Listings / Swap Requests */}
-          <div>
+          <div ref={listingsSectionRef}>
             <div className="flex bg-muted rounded-xl p-1 mb-5 w-fit">
               {(
                 [

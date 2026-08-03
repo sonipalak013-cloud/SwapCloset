@@ -4,6 +4,7 @@ import { Bell, ArrowLeftRight, MessageSquare, Heart, Check, X, Clock, CheckCheck
 import { toast } from 'sonner';
 import Badge from '@/components/ui/Badge';
 import EmptyState from '@/components/ui/EmptyState';
+import { useRouter } from 'next/navigation';
 
 interface Notification {
   id: string;
@@ -13,9 +14,12 @@ interface Notification {
   time: string;
   read: boolean;
   actionUrl?: string;
+  listingId?: string;
 }
 
 export default function NotificationsClient() {
+  const router = useRouter();
+  
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
@@ -25,6 +29,7 @@ export default function NotificationsClient() {
       time: '2 hours ago',
       read: false,
       actionUrl: '/swap-requests',
+      listingId: 'mylisting-001',
     },
     {
       id: '2',
@@ -34,6 +39,7 @@ export default function NotificationsClient() {
       time: '5 hours ago',
       read: false,
       actionUrl: '/swap-requests',
+      listingId: 'mylisting-003',
     },
     {
       id: '3',
@@ -51,6 +57,7 @@ export default function NotificationsClient() {
       message: 'Emily Roberts saved your Vintage Denim Jacket to her favorites',
       time: '2 days ago',
       read: true,
+      listingId: 'mylisting-002',
     },
     {
       id: '5',
@@ -60,6 +67,7 @@ export default function NotificationsClient() {
       time: '3 days ago',
       read: true,
       actionUrl: '/swap-requests',
+      listingId: 'mylisting-005',
     },
   ]);
 
@@ -69,6 +77,16 @@ export default function NotificationsClient() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    markAsRead(notification.id);
+    
+    if (notification.listingId) {
+      router.push(`/listings/${notification.listingId}`);
+    } else if (notification.actionUrl) {
+      router.push(notification.actionUrl);
+    }
   };
 
   const markAllAsRead = () => {
@@ -142,7 +160,7 @@ export default function NotificationsClient() {
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              onClick={() => markAsRead(notification.id)}
+              onClick={() => handleNotificationClick(notification)}
               className={`bg-card rounded-2xl border p-4 transition-all duration-150 hover:shadow-card cursor-pointer ${
                 !notification.read ? 'border-primary/30 bg-primary/5' : 'border-border'
               }`}
