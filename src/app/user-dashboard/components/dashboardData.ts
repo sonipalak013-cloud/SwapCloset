@@ -12,6 +12,7 @@ export interface MyListing {
   postedDate: string;
   imageUrl: string;
   imageAlt: string;
+  color?: string;
 }
 
 export interface SwapRequest {
@@ -54,6 +55,7 @@ export const MY_LISTINGS: MyListing[] = [
     postedDate: 'Jul 28, 2026',
     imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_1ab464e37-1773214626767.png',
     imageAlt: 'Dusty rose silk midi skirt on hanger',
+    color: '#E8B4B8',
   },
   {
     id: 'mylisting-002',
@@ -69,6 +71,7 @@ export const MY_LISTINGS: MyListing[] = [
     postedDate: 'Jul 22, 2026',
     imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_181e25e30-1766470464698.png',
     imageAlt: 'Cobalt blue vintage Nike windbreaker jacket',
+    color: '#4A90A4',
   },
   {
     id: 'mylisting-003',
@@ -77,13 +80,14 @@ export const MY_LISTINGS: MyListing[] = [
     category: 'Tops',
     size: 'M',
     condition: 'Good',
-    estimatedValue: 42,
+    estimatedValue: 55,
     status: 'active',
-    views: 29,
+    views: 31,
     swapRequests: 0,
-    postedDate: 'Jul 25, 2026',
-    imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_1b9742b60-1772433447821.png',
-    imageAlt: 'Cream linen button-down shirt folded on white surface',
+    postedDate: 'Jul 15, 2026',
+    imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_123e1249b-1784798292465.png',
+    imageAlt: 'Cream linen button-down shirt',
+    color: '#F5F5DC',
   },
   {
     id: 'mylisting-004',
@@ -91,29 +95,31 @@ export const MY_LISTINGS: MyListing[] = [
     brand: 'Thursday Boot Co.',
     category: 'Shoes',
     size: '8',
-    condition: 'Fair',
+    condition: 'Like New',
     estimatedValue: 95,
     status: 'active',
-    views: 61,
+    views: 62,
     swapRequests: 2,
-    postedDate: 'Jul 20, 2026',
+    postedDate: 'Jul 10, 2026',
     imageUrl: 'https://images.unsplash.com/photo-1673437531214-1e48e0ebf59d',
-    imageAlt: 'Tan suede Chelsea boots on wooden surface',
+    imageAlt: 'Tan suede chelsea boots on wooden floor',
+    color: '#C19A6B',
   },
   {
     id: 'mylisting-005',
-    title: 'Floral Wrap Dress',
-    brand: 'Free People',
+    title: 'Floral Midi Dress',
+    brand: '& Other Stories',
     category: 'Dresses',
     size: 'S',
-    condition: 'Like New',
+    condition: 'Good',
     estimatedValue: 72,
-    status: 'swapped',
-    views: 112,
-    swapRequests: 5,
-    postedDate: 'Jul 10, 2026',
-    imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_1cb3ff224-1776440797927.png',
-    imageAlt: 'Floral wrap dress with long sleeves on hanger',
+    status: 'draft',
+    views: 0,
+    swapRequests: 0,
+    postedDate: 'Jul 5, 2026',
+    imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_1a2202393-1772101260576.png',
+    imageAlt: 'Floral print midi dress on hanger',
+    color: '#FFB6C1',
   },
   {
     id: 'mylisting-006',
@@ -129,6 +135,7 @@ export const MY_LISTINGS: MyListing[] = [
     postedDate: 'Jul 30, 2026',
     imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_157dbfe64-1769701950875.png',
     imageAlt: 'Oatmeal cashmere cardigan with buttons on neutral background',
+    color: '#D2B48C',
   },
   {
     id: 'mylisting-007',
@@ -144,6 +151,7 @@ export const MY_LISTINGS: MyListing[] = [
     postedDate: 'Jul 27, 2026',
     imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_173ec5559-1772859184601.png',
     imageAlt: 'Wide-leg corduroy trousers in warm brown on clothing rack',
+    color: '#8B4513',
   },
   {
     id: 'mylisting-008',
@@ -159,6 +167,7 @@ export const MY_LISTINGS: MyListing[] = [
     postedDate: 'Jun 15, 2026',
     imageUrl: 'https://img.rocket.new/generatedImages/rocket_gen_img_1faaa3bbf-1767657765407.png',
     imageAlt: 'Navy and white striped Breton top on white hanger',
+    color: '#1E3A5F',
   },
 ];
 
